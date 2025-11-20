@@ -23,10 +23,10 @@
         }
 
         .oracle-ui {
-            position: absolute;
+            position: fixed;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            right: 20px;
+            transform: translateY(-50%);
             text-align: center;
             z-index: 100;
             opacity: 0;
@@ -34,12 +34,12 @@
             transition: opacity 2s ease-in-out;
             pointer-events: none;
             background: rgba(0, 0, 0, 0.95);
-            padding: 40px;
+            padding: 30px;
             border: 2px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-            max-width: 90vw;
-            max-height: 90vh;
+            max-width: 400px;
+            max-height: 85vh;
             overflow-y: auto;
         }
 
@@ -51,8 +51,8 @@
 
         .prompt-text {
             color: #fff;
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 18px;
+            margin-bottom: 20px;
             text-shadow: 0 0 20px currentColor;
             animation: textGlow 3s ease-in-out infinite alternate;
         }
@@ -61,15 +61,17 @@
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid currentColor;
             color: #fff;
-            padding: 15px 20px;
+            padding: 12px 15px;
             font-family: 'Press Start 2P', monospace;
-            font-size: 14px;
+            font-size: 11px;
             border-radius: 0;
             outline: none;
-            width: 400px;
+            width: 100%;
+            max-width: 340px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             transition: all 0.3s ease;
+            box-sizing: border-box;
         }
 
         .oracle-input:focus {
@@ -338,16 +340,19 @@
             let breathBrightness = map(sin(TWO_PI * breathingPhase / breathingCycle), -1, 1, 5, 15);
             background(0, 0, breathBrightness);
 
-            // Update hue for color cycling
-            currentHue = (currentHue + 1) % 360;
+            // Slowly transition through colors
+            currentHue = (currentHue + 0.2) % 360;
 
-            // Set glow effect
-            drawingContext.shadowBlur = 30;
+            // Enhanced glow for blob effect
+            drawingContext.shadowBlur = 50;
             drawingContext.shadowColor = `hsl(${currentHue}, 100%, 60%)`;
 
             // Create symmetrical inkblot using flow field
             push();
             translate(width / 2, height / 2);
+
+            // Use blend mode for blob effect
+            blendMode(ADD);
 
             // Left side (generative)
             for (let i = 0; i < particles.length; i++) {
@@ -375,16 +380,17 @@
                     p.vy -= p.y * 0.0008;
                 }
 
-                // Color with high visibility
-                let particleHue = (currentHue + i * 3) % 360;
-                fill(particleHue, 100, 100, 90);
+                // Unified color with slight variations for depth
+                let hueVariation = sin(p.noiseOffset + frameCount * 0.01) * 15;
+                let particleHue = (currentHue + hueVariation) % 360;
+                fill(particleHue, 100, 100, 70);
                 noStroke();
 
-                // Draw organic shapes with blur
+                // Draw organic blob shapes with blur
                 ellipse(p.x, p.y, p.size * p.life);
 
                 // Mirrored right side
-                fill(particleHue, 100, 100, 85);
+                fill(particleHue, 100, 100, 65);
                 ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
@@ -403,7 +409,8 @@
 
             pop();
 
-            // Reset shadow
+            // Reset blend mode and shadow
+            blendMode(BLEND);
             drawingContext.shadowBlur = 0;
         }
 
