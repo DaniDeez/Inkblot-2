@@ -13,7 +13,7 @@
             overflow: hidden;
             background: #000;
             font-family: 'Press Start 2P', monospace;
-            cursor: none;
+            cursor: default;
         }
 
         #oracle-container {
@@ -32,6 +32,11 @@
             opacity: 0;
             transition: opacity 2s ease-in-out;
             pointer-events: none;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
         }
 
         .oracle-ui.active {
@@ -192,10 +197,35 @@
         .freeze-indicator.show {
             opacity: 1;
         }
+
+        .new-inkblot-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 150;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .new-inkblot-btn:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 20px #fff;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <div id="oracle-container">
+        <button class="new-inkblot-btn" id="newInkblotBtn">🔮 New Inkblot</button>
+
         <div class="freeze-indicator" id="freezeIndicator">
             Click or tap to freeze inkblot...
         </div>
@@ -279,7 +309,7 @@
                     y: random(-250, 250),
                     vx: random(-1, 1),
                     vy: random(-1, 1),
-                    size: random(5, 15),
+                    size: random(8, 20),
                     noiseOffset: random(1000),
                     life: random(0.7, 1)
                 });
@@ -529,6 +559,43 @@
                 // Save the image
                 tempCanvas.save('psycheflux-vision.png');
             }
+        });
+
+        // New Inkblot button - reset everything
+        document.getElementById('newInkblotBtn').addEventListener('click', function() {
+            // Reset to phase 1
+            phase = 1;
+            isFrozen = false;
+            frozenCanvas = null;
+            dominantColors = [];
+
+            // Hide oracle UI
+            document.getElementById('oracleUI').classList.remove('active');
+
+            // Clear input and reading panel
+            document.getElementById('userInput').value = '';
+            document.getElementById('readingPanel').style.display = 'none';
+            document.getElementById('colorList').innerHTML = '';
+            document.getElementById('symbolText').textContent = '';
+
+            // Reinitialize particles
+            particles = [];
+            for (let i = 0; i < 300; i++) {
+                particles.push({
+                    x: random(-250, 250),
+                    y: random(-250, 250),
+                    vx: random(-1, 1),
+                    vy: random(-1, 1),
+                    size: random(8, 20),
+                    noiseOffset: random(1000),
+                    life: random(0.7, 1)
+                });
+            }
+
+            // Reset hue
+            currentHue = random(360);
+
+            console.log('New inkblot generated');
         });
     </script>
 </body>
