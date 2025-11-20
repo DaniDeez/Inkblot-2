@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Psycheflux Oracle Inkblot Simulator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Press Start 2P', monospace;
+            cursor: none;
+        }
+
+        #oracle-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .oracle-ui {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            pointer-events: none;
+        }
+
+        .oracle-ui.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .prompt-text {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px currentColor;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
+        .oracle-input {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid currentColor;
+            color: #fff;
+            padding: 15px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            border-radius: 0;
+            outline: none;
+            width: 400px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .oracle-input:focus {
+            box-shadow: 0 0 30px currentColor;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .submit-btn {
+            background: transparent;
+            border: 2px solid currentColor;
+            color: #fff;
+            padding: 12px 30px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .submit-btn:hover {
+            background: currentColor;
+            color: #000;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .reading-panel {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid currentColor;
+            max-width: 600px;
+            animation: fadeInUp 2s ease-out;
+        }
+
+        .color-echoes {
+            margin-bottom: 25px;
+        }
+
+        .echo-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px currentColor;
+        }
+
+        .color-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .color-item {
+            margin-bottom: 10px;
+            font-size: 10px;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInLeft 1s ease-out forwards;
+        }
+
+        .color-item:nth-child(1) { animation-delay: 0.5s; }
+        .color-item:nth-child(2) { animation-delay: 1s; }
+        .color-item:nth-child(3) { animation-delay: 1.5s; }
+
+        .symbol-reading {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .symbol-text {
+            font-size: 12px;
+            line-height: 1.8;
+            font-style: italic;
+            opacity: 0;
+            animation: fadeInUp 1.5s ease-out 2s forwards;
+        }
+
+        .save-btn {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px solid currentColor;
+            color: #fff;
+            padding: 8px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 3s forwards;
+        }
+
+        .save-btn:hover {
+            background: currentColor;
+            color: #000;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 20px currentColor; }
+            100% { text-shadow: 0 0 30px currentColor, 0 0 40px currentColor; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .freeze-indicator {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .freeze-indicator.show {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div id="oracle-container">
+        <div class="freeze-indicator" id="freezeIndicator">
+            Click or tap to freeze inkblot...
+        </div>
+
+        <div class="oracle-ui" id="oracleUI">
+            <div class="prompt-text">What do you see?</div>
+            <input type="text" class="oracle-input" id="userInput" placeholder="Describe your vision...">
+            <button class="submit-btn" id="submitBtn">Submit</button>
+
+            <div class="reading-panel" id="readingPanel" style="display: none;">
+                <div class="color-echoes">
+                    <div class="echo-title">Color Echoes in the Inkblot</div>
+                    <ul class="color-list" id="colorList"></ul>
+                </div>
+                <div class="symbol-reading">
+                    <div class="symbol-text" id="symbolText"></div>
+                </div>
+                <button class="save-btn" id="saveBtn">Save Vision</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let inkblot;
+        let phase = 1;
+        let isFrozen = false;
+        let holdStartTime = 0;
+
+        let currentHue = 0;
+        let breathingPhase = 0;
+        let breathingCycle = 3600; // 60 seconds at 60fps
+        let particles = [];
+        let frozenCanvas;
+        let dominantColors = [];
+
+        // Color readings mapping
+        const colorReadings = {
+            red: "Vitality, desire, anger, lifeforce, primal energy.",
+            orange: "Creativity, transformation, emotional courage.",
+            yellow: "Clarity, intellect, joy, anxiety, solar awareness.",
+            green: "Healing, grief, heart-opening, receptivity.",
+            blue: "Expression, sorrow, calm, emotional distance.",
+            indigo: "Mystery, subconscious patterning, shadow intuition.",
+            violet: "Transcendence, psychic resonance, surrender.",
+            magenta: "Alchemy, soul longing, sacred union."
+        };
+
+        // Symbol readings mapping
+        const symbolReadings = {
+            wolf: "Instinct, protection, loneliness, pack-bond. The guardian of thresholds.",
+            eye: "Seeing beyond. Intuition. Revelation. The seer's portal.",
+            spiral: "Cycles, DNA, the infinite inward. Becoming without end.",
+            doorway: "Threshold, unknown, new path. The soul's next step.",
+            snake: "Transformation, hidden power, kundalini, release.",
+            tree: "Growth, lineage, rooted wisdom. Connection between worlds.",
+            flame: "Purification, passion, destruction. The soul on fire.",
+            bird: "Freedom, perspective, messages from the spirit realm.",
+            water: "Emotion, flow, cleansing. The subconscious speaks.",
+            mountain: "Stability, challenge, spiritual ascent. The eternal witness.",
+            moon: "Intuition, cycles, the feminine mystery. Lunar consciousness.",
+            sun: "Vitality, consciousness, enlightenment. Solar power.",
+            shadow: "The unconscious, hidden aspects, integration of the dark.",
+            mirror: "Self-reflection, truth, the soul's gaze upon itself.",
+            bridge: "Connection, transition, crossing between worlds."
+        };
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            colorMode(HSB, 360, 100, 100, 100);
+
+            // Initialize inkblot particles
+            for (let i = 0; i < 200; i++) {
+                particles.push({
+                    x: random(-200, 200),
+                    y: random(-200, 200),
+                    vx: 0,
+                    vy: 0,
+                    size: random(3, 8),
+                    noiseOffset: random(1000),
+                    life: random(0.5, 1)
+                });
+            }
+
+            // Ensure canvas is visible
+            console.log('Psycheflux Oracle initialized');
+            console.log('Canvas size:', width, 'x', height);
+
+            // Force initial background draw
+            background(0, 0, 10);
+        }
+
+        function draw() {
+            if (phase === 1) {
+                drawPhase1();
+            } else if (phase === 2) {
+                drawPhase2();
+            }
+        }
+
+        function drawPhase1() {
+            // Breathing background - ensure minimum visibility
+            breathingPhase += 1;
+            let breathBrightness = map(sin(TWO_PI * breathingPhase / breathingCycle), -1, 1, 15, 35);
+            background(0, 0, breathBrightness);
+
+            // Update hue for color cycling
+            currentHue = (currentHue + 0.5) % 360;
+
+            // Set glow effect
+            drawingContext.shadowBlur = 20;
+            drawingContext.shadowColor = `hsl(${currentHue}, 80%, 70%)`;
+
+            // Create symmetrical inkblot using flow field
+            push();
+            translate(width / 2, height / 2);
+
+            // Left side (generative)
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+
+                // Flow field using Perlin noise
+                let angle = noise(p.x * 0.01, p.y * 0.01, p.noiseOffset) * TWO_PI * 2;
+                let force = noise(p.x * 0.02, p.y * 0.02, p.noiseOffset + 100) * 0.5;
+
+                p.vx += cos(angle) * force;
+                p.vy += sin(angle) * force;
+
+                // Damping
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+
+                // Update position
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Attraction to center
+                let distToCenter = dist(p.x, p.y, 0, 0);
+                if (distToCenter > 200) {
+                    p.vx -= p.x * 0.001;
+                    p.vy -= p.y * 0.001;
+                }
+
+                // Color with alpha for softness
+                let particleHue = (currentHue + i * 2) % 360;
+                fill(particleHue, 85, 90, p.life * 80);
+                noStroke();
+
+                // Draw organic shapes
+                ellipse(p.x, p.y, p.size * p.life);
+
+                // Mirrored right side
+                fill(particleHue, 85, 90, p.life * 75);
+                ellipse(-p.x, p.y, p.size * p.life * 0.9);
+
+                // Update life and reset if needed
+                p.life -= 0.002;
+                if (p.life <= 0) {
+                    p.x = random(-100, 100);
+                    p.y = random(-100, 100);
+                    p.vx = random(-2, 2);
+                    p.vy = random(-2, 2);
+                    p.life = random(0.5, 1);
+                }
+
+                p.noiseOffset += 0.01;
+            }
+
+            pop();
+
+            // Reset shadow
+            drawingContext.shadowBlur = 0;
+        }
+
+        function drawPhase2() {
+            // Display frozen canvas
+            if (frozenCanvas) {
+                image(frozenCanvas, 0, 0);
+            }
+        }
+
+        function mousePressed() {
+            if (phase === 1 && !isFrozen) {
+                freezeInkblot();
+            }
+        }
+
+        function touchStarted() {
+            if (phase === 1 && !isFrozen) {
+                freezeInkblot();
+                return false; // Prevent default touch behavior
+            }
+        }
+
+        function freezeInkblot() {
+            isFrozen = true;
+            frozenCanvas = get();
+            phase = 2;
+
+            // Analyze colors
+            analyzeColors();
+
+            // Show oracle UI
+            setTimeout(() => {
+                document.getElementById('oracleUI').classList.add('active');
+            }, 1000);
+        }
+
+        function analyzeColors() {
+            dominantColors = [];
+            let colorCounts = {};
+
+            // Sample pixels from the frozen canvas
+            for (let i = 0; i < 1000; i++) {
+                let x = floor(random(width));
+                let y = floor(random(height));
+                let c = frozenCanvas.get(x, y);
+
+                if (c[3] > 50) { // Only count non-transparent pixels
+                    let hue = floor(c[0]);
+                    let colorName = getColorName(hue);
+                    colorCounts[colorName] = (colorCounts[colorName] || 0) + 1;
+                }
+            }
+
+            // Get top 3 colors
+            let sortedColors = Object.entries(colorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+
+            dominantColors = sortedColors.map(([color, count]) => ({
+                name: color,
+                meaning: colorReadings[color]
+            }));
+        }
+
+        function getColorName(hue) {
+            if (hue >= 0 && hue <= 20) return 'red';
+            if (hue >= 21 && hue <= 50) return 'orange';
+            if (hue >= 51 && hue <= 90) return 'yellow';
+            if (hue >= 91 && hue <= 150) return 'green';
+            if (hue >= 151 && hue <= 220) return 'blue';
+            if (hue >= 221 && hue <= 290) return 'indigo';
+            if (hue >= 291 && hue <= 330) return 'violet';
+            return 'magenta';
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        // Phase 2 UI interactions
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            let userInput = document.getElementById('userInput').value.toLowerCase();
+            if (userInput.trim()) {
+                showReading(userInput);
+            }
+        });
+
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('submitBtn').click();
+            }
+        });
+
+        function showReading(userInput) {
+            // Display color echoes
+            let colorList = document.getElementById('colorList');
+            colorList.innerHTML = '';
+
+            dominantColors.forEach(color => {
+                let li = document.createElement('li');
+                li.className = 'color-item';
+                li.innerHTML = `<strong>${color.name.toUpperCase()}:</strong> ${color.meaning}`;
+                colorList.appendChild(li);
+            });
+
+            // Find symbolic meaning
+            let symbolFound = false;
+            let symbolText = document.getElementById('symbolText');
+
+            for (let symbol in symbolReadings) {
+                if (userInput.includes(symbol)) {
+                    symbolText.textContent = symbolReadings[symbol];
+                    symbolFound = true;
+                    break;
+                }
+            }
+
+            if (!symbolFound) {
+                symbolText.textContent = "Your symbol speaks in a rare tongue. Keep listening.";
+            }
+
+            // Show reading panel
+            document.getElementById('readingPanel').style.display = 'block';
+
+            // Set text color based on dominant color
+            let oracleUI = document.getElementById('oracleUI');
+            if (dominantColors.length > 0) {
+                let hue = getHueFromColorName(dominantColors[0].name);
+                oracleUI.style.color = `hsl(${hue}, 70%, 70%)`;
+            }
+        }
+
+        function getHueFromColorName(colorName) {
+            const hueMap = {
+                red: 0,
+                orange: 35,
+                yellow: 70,
+                green: 120,
+                blue: 185,
+                indigo: 255,
+                violet: 310,
+                magenta: 330
+            };
+            return hueMap[colorName] || 0;
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            if (frozenCanvas) {
+                // Create composite image with text overlay
+                let tempCanvas = createGraphics(width, height);
+                tempCanvas.image(frozenCanvas, 0, 0);
+
+                // Add text overlay
+                tempCanvas.fill(255);
+                tempCanvas.textAlign(CENTER);
+                tempCanvas.textSize(16);
+                tempCanvas.text("Psycheflux Oracle Vision", width/2, height - 50);
+
+                // Save the image
+                tempCanvas.save('psycheflux-vision.png');
+            }
+        });
+    </script>
+</body>
+</html>
