@@ -30,6 +30,7 @@
             text-align: center;
             z-index: 100;
             opacity: 0;
+            display: none;
             transition: opacity 2s ease-in-out;
             pointer-events: none;
             background: rgba(0, 0, 0, 0.95);
@@ -37,10 +38,14 @@
             border: 2px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .oracle-ui.active {
             opacity: 1;
+            display: block;
             pointer-events: all;
         }
 
@@ -302,15 +307,16 @@
 
             colorMode(HSB, 360, 100, 100, 100);
 
-            // Initialize inkblot particles with better visibility
-            for (let i = 0; i < 300; i++) {
+            // Initialize inkblot particles - larger and more organic
+            for (let i = 0; i < 500; i++) {
                 particles.push({
-                    x: random(-250, 250),
-                    y: random(-250, 250),
-                    vx: random(-1, 1),
-                    vy: random(-1, 1),
-                    size: random(8, 20),
-                    noiseOffset: random(1000),
+                    x: random(-400, 400),
+                    y: random(-400, 400),
+                    vx: random(-2, 2),
+                    vy: random(-2, 2),
+                    size: random(15, 40),
+                    noiseOffset: random(10000),
+                    noiseScale: random(0.005, 0.02),
                     life: random(0.7, 1)
                 });
             }
@@ -347,26 +353,26 @@
             for (let i = 0; i < particles.length; i++) {
                 let p = particles[i];
 
-                // Flow field using Perlin noise
-                let angle = noise(p.x * 0.01, p.y * 0.01, p.noiseOffset) * TWO_PI * 2;
-                let force = noise(p.x * 0.02, p.y * 0.02, p.noiseOffset + 100) * 0.5;
+                // Flow field using Perlin noise with varied scales for organic shapes
+                let angle = noise(p.x * p.noiseScale, p.y * p.noiseScale, p.noiseOffset) * TWO_PI * 3;
+                let force = noise(p.x * p.noiseScale * 2, p.y * p.noiseScale * 2, p.noiseOffset + 100) * 0.8;
 
                 p.vx += cos(angle) * force;
                 p.vy += sin(angle) * force;
 
                 // Damping
-                p.vx *= 0.98;
-                p.vy *= 0.98;
+                p.vx *= 0.96;
+                p.vy *= 0.96;
 
                 // Update position
                 p.x += p.vx;
                 p.y += p.vy;
 
-                // Attraction to center
+                // Attraction to center with larger bounds
                 let distToCenter = dist(p.x, p.y, 0, 0);
-                if (distToCenter > 200) {
-                    p.vx -= p.x * 0.001;
-                    p.vy -= p.y * 0.001;
+                if (distToCenter > 400) {
+                    p.vx -= p.x * 0.0008;
+                    p.vy -= p.y * 0.0008;
                 }
 
                 // Color with high visibility
@@ -382,13 +388,14 @@
                 ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
-                p.life -= 0.001;
+                p.life -= 0.0008;
                 if (p.life <= 0.3) {
-                    p.x = random(-200, 200);
-                    p.y = random(-200, 200);
-                    p.vx = random(-1, 1);
-                    p.vy = random(-1, 1);
+                    p.x = random(-400, 400);
+                    p.y = random(-400, 400);
+                    p.vx = random(-2, 2);
+                    p.vy = random(-2, 2);
                     p.life = random(0.7, 1);
+                    p.noiseScale = random(0.005, 0.02);
                 }
 
                 p.noiseOffset += 0.01;
@@ -578,16 +585,17 @@
             document.getElementById('colorList').innerHTML = '';
             document.getElementById('symbolText').textContent = '';
 
-            // Reinitialize particles
+            // Reinitialize particles with larger, more organic shapes
             particles = [];
-            for (let i = 0; i < 300; i++) {
+            for (let i = 0; i < 500; i++) {
                 particles.push({
-                    x: random(-250, 250),
-                    y: random(-250, 250),
-                    vx: random(-1, 1),
-                    vy: random(-1, 1),
-                    size: random(8, 20),
-                    noiseOffset: random(1000),
+                    x: random(-400, 400),
+                    y: random(-400, 400),
+                    vx: random(-2, 2),
+                    vy: random(-2, 2),
+                    size: random(15, 40),
+                    noiseOffset: random(10000),
+                    noiseScale: random(0.005, 0.02),
                     life: random(0.7, 1)
                 });
             }
