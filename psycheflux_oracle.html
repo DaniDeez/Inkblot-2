@@ -182,13 +182,15 @@
             transform: translateX(-50%);
             color: #fff;
             font-size: 12px;
-            opacity: 0;
+            opacity: 0.8;
             transition: opacity 0.3s ease;
             pointer-events: none;
+            z-index: 50;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
         .freeze-indicator.show {
-            opacity: 0.7;
+            opacity: 1;
         }
     </style>
 </head>
@@ -261,28 +263,29 @@
         };
 
         function setup() {
-            createCanvas(windowWidth, windowHeight);
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('oracle-container');
+            canvas.style('position', 'absolute');
+            canvas.style('top', '0');
+            canvas.style('left', '0');
+            canvas.style('z-index', '1');
+
             colorMode(HSB, 360, 100, 100, 100);
 
-            // Initialize inkblot particles
-            for (let i = 0; i < 200; i++) {
+            // Initialize inkblot particles with better visibility
+            for (let i = 0; i < 300; i++) {
                 particles.push({
-                    x: random(-200, 200),
-                    y: random(-200, 200),
-                    vx: 0,
-                    vy: 0,
-                    size: random(3, 8),
+                    x: random(-250, 250),
+                    y: random(-250, 250),
+                    vx: random(-1, 1),
+                    vy: random(-1, 1),
+                    size: random(5, 15),
                     noiseOffset: random(1000),
-                    life: random(0.5, 1)
+                    life: random(0.7, 1)
                 });
             }
 
-            // Ensure canvas is visible
             console.log('Psycheflux Oracle initialized');
-            console.log('Canvas size:', width, 'x', height);
-
-            // Force initial background draw
-            background(0, 0, 10);
         }
 
         function draw() {
@@ -294,17 +297,17 @@
         }
 
         function drawPhase1() {
-            // Breathing background - ensure minimum visibility
+            // Breathing background - darker for contrast
             breathingPhase += 1;
-            let breathBrightness = map(sin(TWO_PI * breathingPhase / breathingCycle), -1, 1, 15, 35);
+            let breathBrightness = map(sin(TWO_PI * breathingPhase / breathingCycle), -1, 1, 5, 15);
             background(0, 0, breathBrightness);
 
             // Update hue for color cycling
-            currentHue = (currentHue + 0.5) % 360;
+            currentHue = (currentHue + 1) % 360;
 
             // Set glow effect
-            drawingContext.shadowBlur = 20;
-            drawingContext.shadowColor = `hsl(${currentHue}, 80%, 70%)`;
+            drawingContext.shadowBlur = 30;
+            drawingContext.shadowColor = `hsl(${currentHue}, 100%, 60%)`;
 
             // Create symmetrical inkblot using flow field
             push();
@@ -336,26 +339,26 @@
                     p.vy -= p.y * 0.001;
                 }
 
-                // Color with alpha for softness
-                let particleHue = (currentHue + i * 2) % 360;
-                fill(particleHue, 85, 90, p.life * 80);
+                // Color with high visibility
+                let particleHue = (currentHue + i * 3) % 360;
+                fill(particleHue, 100, 100, 90);
                 noStroke();
 
-                // Draw organic shapes
+                // Draw organic shapes with blur
                 ellipse(p.x, p.y, p.size * p.life);
 
                 // Mirrored right side
-                fill(particleHue, 85, 90, p.life * 75);
-                ellipse(-p.x, p.y, p.size * p.life * 0.9);
+                fill(particleHue, 100, 100, 85);
+                ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
-                p.life -= 0.002;
-                if (p.life <= 0) {
-                    p.x = random(-100, 100);
-                    p.y = random(-100, 100);
-                    p.vx = random(-2, 2);
-                    p.vy = random(-2, 2);
-                    p.life = random(0.5, 1);
+                p.life -= 0.001;
+                if (p.life <= 0.3) {
+                    p.x = random(-200, 200);
+                    p.y = random(-200, 200);
+                    p.vx = random(-1, 1);
+                    p.vy = random(-1, 1);
+                    p.life = random(0.7, 1);
                 }
 
                 p.noiseOffset += 0.01;
