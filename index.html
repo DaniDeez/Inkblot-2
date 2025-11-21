@@ -472,12 +472,14 @@
         }
 
         function drawMetaball() {
-            const imageData = ctx.createImageData(width, height);
+            // Get current canvas content (which should be the parchment)
+            const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
             // Adjusted threshold for detailed Rorschach edges
             const threshold = 1.2;
 
+            // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width / 2; x++) {
                     let sum = 0;
@@ -506,6 +508,7 @@
                             alpha = Math.min(255, edgeFactor * 255);
                         }
 
+                        // Draw black ink over parchment
                         data[index] = 10;
                         data[index + 1] = 10;
                         data[index + 2] = 10;
@@ -521,10 +524,13 @@
                     const sourceIndex = (y * width + mirrorX) * 4;
                     const targetIndex = (y * width + x) * 4;
 
-                    data[targetIndex] = data[sourceIndex];
-                    data[targetIndex + 1] = data[sourceIndex + 1];
-                    data[targetIndex + 2] = data[sourceIndex + 2];
-                    data[targetIndex + 3] = data[sourceIndex + 3];
+                    // Only copy if there's actual ink at the source
+                    if (data[sourceIndex + 3] > 0 && data[sourceIndex] < 50) {
+                        data[targetIndex] = data[sourceIndex];
+                        data[targetIndex + 1] = data[sourceIndex + 1];
+                        data[targetIndex + 2] = data[sourceIndex + 2];
+                        data[targetIndex + 3] = data[sourceIndex + 3];
+                    }
                 }
             }
 
@@ -647,7 +653,7 @@
             readingResult.classList.remove('visible');
             visionInput.value = '';
             readingResult.innerHTML = '';
-            animate();
+            requestAnimationFrame(animate);
         }
 
         function generateNewInkblot() {
@@ -884,8 +890,8 @@
         // Draw initial stars
         stars.forEach(star => star.draw());
 
-        // Start animation loop
-        animate();
+        // Start animation loop with requestAnimationFrame (provides time parameter)
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>
