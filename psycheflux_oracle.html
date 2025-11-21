@@ -452,6 +452,30 @@
             bridge_object: { message: "Connection, transition, overcoming division.", triggers: ["bridge", "cross", "connect", "between"] }
         };
 
+        // Wildcard messages for unmapped symbols
+        const wildcardMessages = [
+            "You do not see the world as it is. You see the world as you are.",
+            "The wound is the place where the light enters you.",
+            "All things visible are born from the invisible.",
+            "Freedom begins the moment you stop seeking permission.",
+            "You are not looking for meaning—you are looking for resonance.",
+            "When you stop clinging to identity, the soul begins to speak.",
+            "To remember yourself is not to recall a fact, but to return to a frequency.",
+            "What you fear most is often the gateway to your freedom.",
+            "Even silence has a shape if you're willing to listen.",
+            "To transform is to remember your original shape.",
+            "Symbols are not answers. They are invitations.",
+            "Your longing is holy. Trace it back to its source.",
+            "The mystery is not something to be solved, but something to be entered.",
+            "There is no mirror more honest than what you project onto the unknown.",
+            "The soul does not speak in words—it speaks in symbols, sensations, and sudden knowing.",
+            "What you avoid contains the instructions for your becoming.",
+            "Awareness does not grow from knowing more, but from noticing more.",
+            "Sometimes what you call confusion is simply the mind being humbled by mystery.",
+            "If you knew how to interpret your own energy, you would need fewer explanations.",
+            "The further you go inward, the less language follows."
+        ];
+
         function setup() {
             let canvas = createCanvas(windowWidth, windowHeight);
             canvas.parent('oracle-container');
@@ -693,7 +717,9 @@
             }
 
             if (!symbolFound) {
-                symbolText.textContent = "Your symbol speaks in a rare tongue. Keep listening.";
+                // Select a random wildcard message
+                let randomIndex = floor(random(wildcardMessages.length));
+                symbolText.textContent = wildcardMessages[randomIndex];
             }
 
             // Show reading panel
