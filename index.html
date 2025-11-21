@@ -283,17 +283,17 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Varied blob sizes to create distinct flowing shapes
+                // Bigger irregular blob sizes for 5 distinct Rorschach clusters
                 const sizeType = Math.random();
-                if (sizeType < 0.3) {
-                    // Small satellite blobs
-                    this.baseRadius = 20 + Math.random() * 15;
-                } else if (sizeType < 0.7) {
-                    // Medium flowing shapes
-                    this.baseRadius = 35 + Math.random() * 20;
+                if (sizeType < 0.2) {
+                    // Smaller irregular clusters
+                    this.baseRadius = 50 + Math.random() * 30;
+                } else if (sizeType < 0.6) {
+                    // Medium irregular clusters
+                    this.baseRadius = 80 + Math.random() * 40;
                 } else {
-                    // Larger central masses
-                    this.baseRadius = 55 + Math.random() * 25;
+                    // Large irregular blob clusters
+                    this.baseRadius = 120 + Math.random() * 50;
                 }
 
                 this.radius = this.baseRadius;
@@ -455,8 +455,8 @@
 
         function initBlobs() {
             blobs = [];
-            // Very few blobs to create distinct separated shapes with negative space
-            const numBlobs = 8 + Math.floor(Math.random() * 7);
+            // Exactly 5 blob clusters for distinct Rorschach shapes
+            const numBlobs = 5;
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -475,8 +475,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // VERY high threshold to create distinct separated blobs with negative space
-            const threshold = 8.0;
+            // Lower threshold for irregular blob shapes with 5 distinct clusters
+            const threshold = 3.0;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
