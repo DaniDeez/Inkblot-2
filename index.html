@@ -273,29 +273,36 @@
             }
 
             reset() {
-                this.x = Math.random() * (width / 2);
-                this.y = Math.random() * height;
+                // Constrain inkblot to center 35% of screen
+                const inkblotWidth = width * 0.35;
+                const inkblotHeight = height * 0.35;
+                const centerX = width / 2;
+                const centerY = height / 2;
+
+                // Position blobs within the center region (half goes to left side for mirroring)
+                this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
+                this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
                 // Much smaller blobs for Rorschach detail - mix of sizes
                 const sizeType = Math.random();
                 if (sizeType < 0.3) {
                     // Tiny satellite drops
-                    this.baseRadius = 8 + Math.random() * 12;
+                    this.baseRadius = 5 + Math.random() * 8;
                 } else if (sizeType < 0.7) {
                     // Medium detail blobs
-                    this.baseRadius = 20 + Math.random() * 25;
+                    this.baseRadius = 12 + Math.random() * 15;
                 } else {
                     // Larger central masses
-                    this.baseRadius = 45 + Math.random() * 35;
+                    this.baseRadius = 25 + Math.random() * 20;
                 }
 
                 this.radius = this.baseRadius;
                 this.targetRadius = this.baseRadius;
 
                 // Velocity - slower for smaller blobs
-                const velocityScale = this.baseRadius / 50;
-                this.vx = (Math.random() - 0.5) * 1.2 * velocityScale;
-                this.vy = (Math.random() - 0.5) * 1.2 * velocityScale;
+                const velocityScale = this.baseRadius / 30;
+                this.vx = (Math.random() - 0.5) * 0.8 * velocityScale;
+                this.vy = (Math.random() - 0.5) * 0.8 * velocityScale;
 
                 // Organic motion parameters
                 this.noiseOffsetX = Math.random() * 1000;
@@ -349,35 +356,37 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Soft boundaries with wrapping and bouncing
-                const margin = this.radius * 0.5;
-
-                if (this.x < -margin) {
-                    this.x = width / 2 + margin;
-                    this.vx *= 0.5;
-                } else if (this.x > width / 2 + margin) {
-                    this.x = -margin;
-                    this.vx *= 0.5;
-                }
-
-                if (this.y < -margin) {
-                    this.vy *= -0.7;
-                    this.y = -margin + 1;
-                } else if (this.y > height + margin) {
-                    this.vy *= -0.7;
-                    this.y = height + margin - 1;
-                }
-
-                // Gentle pull toward center for stability
-                const centerX = width / 4;
+                // Constrain to center 35% region
+                const inkblotWidth = width * 0.35;
+                const inkblotHeight = height * 0.35;
+                const centerX = width / 2;
                 const centerY = height / 2;
-                const dx = centerX - this.x;
-                const dy = centerY - this.y;
+                const leftBound = centerX - inkblotWidth / 2;
+                const rightBound = centerX;
+                const topBound = centerY - inkblotHeight / 2;
+                const bottomBound = centerY + inkblotHeight / 2;
+
+                // Bounce off boundaries
+                if (this.x < leftBound || this.x > rightBound) {
+                    this.vx *= -0.8;
+                    this.x = Math.max(leftBound, Math.min(rightBound, this.x));
+                }
+
+                if (this.y < topBound || this.y > bottomBound) {
+                    this.vy *= -0.8;
+                    this.y = Math.max(topBound, Math.min(bottomBound, this.y));
+                }
+
+                // Gentle pull toward center of inkblot region
+                const targetX = centerX - inkblotWidth / 4;
+                const targetY = centerY;
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist > 0) {
-                    this.vx += (dx / dist) * 0.015;
-                    this.vy += (dy / dist) * 0.015;
+                    this.vx += (dx / dist) * 0.01;
+                    this.vy += (dy / dist) * 0.01;
                 }
 
                 // Viscous damping - lava lamp effect
@@ -523,7 +532,7 @@
         }
 
         function drawParchmentBackground() {
-            // Create antique parchment texture
+            // Create authentic antique parchment texture
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
 
@@ -531,31 +540,65 @@
                 for (let x = 0; x < width; x++) {
                     const index = (y * width + x) * 4;
 
-                    // Base parchment color #f7f1e1
+                    // Base parchment color #f7f1e1 with slight variation
                     let r = 247;
                     let g = 241;
                     let b = 225;
 
-                    // Add subtle texture noise
-                    const noiseVal = noise(x * 0.05, y * 0.05) * 0.5 + noise(x * 0.02, y * 0.02) * 0.5;
-                    const variation = (noiseVal - 0.5) * 15;
+                    // Multi-scale paper texture (fine grain)
+                    const fineNoise = noise(x * 0.5, y * 0.5);
+                    const mediumNoise = noise(x * 0.1, y * 0.1);
+                    const coarseNoise = noise(x * 0.02, y * 0.02);
 
-                    r = Math.max(0, Math.min(255, r + variation));
-                    g = Math.max(0, Math.min(255, g + variation));
-                    b = Math.max(0, Math.min(255, b + variation));
+                    const paperTexture = (fineNoise * 0.5 + mediumNoise * 0.3 + coarseNoise * 0.2) - 0.5;
+                    const textureVariation = paperTexture * 25;
 
-                    // Add sepia/aged spots
-                    const spotNoise = noise(x * 0.01 + 100, y * 0.01 + 100);
-                    if (spotNoise > 0.7) {
-                        const aging = (spotNoise - 0.7) * 20;
-                        r -= aging;
-                        g -= aging * 1.1;
-                        b -= aging * 1.3;
+                    r += textureVariation;
+                    g += textureVariation;
+                    b += textureVariation;
+
+                    // Add organic fiber patterns
+                    const fiberNoise1 = noise(x * 0.03 + 50, y * 0.08 + 50);
+                    const fiberNoise2 = noise(x * 0.08 + 150, y * 0.03 + 150);
+                    if (fiberNoise1 > 0.6 || fiberNoise2 > 0.6) {
+                        const fiberDark = 5;
+                        r -= fiberDark;
+                        g -= fiberDark;
+                        b -= fiberDark;
                     }
 
-                    data[index] = Math.max(0, Math.min(255, r));
-                    data[index + 1] = Math.max(0, Math.min(255, g));
-                    data[index + 2] = Math.max(0, Math.min(255, b));
+                    // Add sepia aging spots
+                    const ageSpot1 = noise(x * 0.008 + 200, y * 0.008 + 200);
+                    const ageSpot2 = noise(x * 0.015 + 500, y * 0.015 + 500);
+
+                    if (ageSpot1 > 0.65) {
+                        const aging = (ageSpot1 - 0.65) * 50;
+                        r -= aging * 1.0;
+                        g -= aging * 1.15;
+                        b -= aging * 1.4;
+                    }
+
+                    if (ageSpot2 > 0.7) {
+                        const aging = (ageSpot2 - 0.7) * 30;
+                        r -= aging * 0.8;
+                        g -= aging * 1.0;
+                        b -= aging * 1.2;
+                    }
+
+                    // Subtle vignette at edges
+                    const distFromCenterX = Math.abs(x - width / 2) / (width / 2);
+                    const distFromCenterY = Math.abs(y - height / 2) / (height / 2);
+                    const vignette = Math.max(distFromCenterX, distFromCenterY);
+                    const vignetteAmount = Math.pow(vignette, 2) * 15;
+
+                    r -= vignetteAmount;
+                    g -= vignetteAmount;
+                    b -= vignetteAmount * 1.1;
+
+                    // Clamp values
+                    data[index] = Math.max(200, Math.min(255, r));
+                    data[index + 1] = Math.max(195, Math.min(255, g));
+                    data[index + 2] = Math.max(180, Math.min(255, b));
                     data[index + 3] = 255;
                 }
             }
@@ -826,6 +869,11 @@
         });
 
         resizeCanvas();
+
+        // Initialize parchment background immediately to avoid black screen
+        drawParchmentBackground();
+        parchmentBackground = ctx.getImageData(0, 0, width, height);
+
         initBlobs();
         initStars();
         animate();
