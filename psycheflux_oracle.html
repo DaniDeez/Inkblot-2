@@ -621,41 +621,45 @@
             frozenCanvas = get();
             phase = 2;
 
+            // Capture the current hue at freeze time
+            let freezeHue = currentHue;
+
             // Show oracle UI immediately
             document.getElementById('oracleUI').classList.add('active');
 
             // Analyze colors in background
             setTimeout(() => {
-                analyzeColors();
+                analyzeColors(freezeHue);
             }, 100);
         }
 
-        function analyzeColors() {
+        function analyzeColors(freezeHue) {
             dominantColors = [];
-            let colorCounts = {};
 
-            // Sample fewer pixels for faster performance
-            for (let i = 0; i < 300; i++) {
-                let x = floor(random(width));
-                let y = floor(random(height));
-                let c = frozenCanvas.get(x, y);
+            // Get the primary color name from the freeze hue
+            let primaryColor = getColorName(freezeHue);
 
-                if (c[3] > 50) { // Only count non-transparent pixels
-                    let hue = floor(c[0]);
-                    let colorName = getColorName(hue);
-                    colorCounts[colorName] = (colorCounts[colorName] || 0) + 1;
+            // Get adjacent colors (±60 degrees on color wheel)
+            let secondaryColor = getColorName((freezeHue + 60) % 360);
+            let tertiaryColor = getColorName((freezeHue - 60 + 360) % 360);
+
+            // Build dominant colors array with primary color first
+            dominantColors = [
+                { name: primaryColor, meaning: colorReadings[primaryColor] },
+                { name: secondaryColor, meaning: colorReadings[secondaryColor] },
+                { name: tertiaryColor, meaning: colorReadings[tertiaryColor] }
+            ];
+
+            // Remove duplicates
+            const uniqueColors = [];
+            const seen = new Set();
+            for (let color of dominantColors) {
+                if (!seen.has(color.name)) {
+                    seen.add(color.name);
+                    uniqueColors.push(color);
                 }
             }
-
-            // Get top 3 colors
-            let sortedColors = Object.entries(colorCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3);
-
-            dominantColors = sortedColors.map(([color, count]) => ({
-                name: color,
-                meaning: colorReadings[color]
-            }));
+            dominantColors = uniqueColors;
         }
 
         function getColorName(hue) {
