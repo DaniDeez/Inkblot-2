@@ -342,6 +342,9 @@
             // Transition through colors at visible speed
             currentHue = (currentHue + 1.5) % 360;
 
+            // Apply canvas-wide gaussian blur filter
+            drawingContext.filter = 'blur(25px)';
+
             // Create symmetrical inkblot using flow field
             push();
             translate(width / 2, height / 2);
@@ -379,18 +382,18 @@
                 let hueVariation = sin(p.noiseOffset + frameCount * 0.02) * 20;
                 let particleHue = (currentHue + hueVariation) % 360;
 
-                // Add intense glow and gaussian blur
-                drawingContext.shadowBlur = 120;
+                // Add intense glow and gaussian blur - extreme blur to hide edges
+                drawingContext.shadowBlur = 180;
                 drawingContext.shadowColor = `hsl(${particleHue}, 100%, 70%)`;
 
-                fill(particleHue, 100, 100, 80);
+                fill(particleHue, 100, 100, 50);
                 noStroke();
 
                 // Draw organic blob shapes with blur
                 ellipse(p.x, p.y, p.size * p.life);
 
                 // Mirrored right side
-                fill(particleHue, 100, 100, 75);
+                fill(particleHue, 100, 100, 45);
                 ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
@@ -409,9 +412,10 @@
 
             pop();
 
-            // Reset blend mode and shadow
+            // Reset blend mode, shadow, and filter
             blendMode(BLEND);
             drawingContext.shadowBlur = 0;
+            drawingContext.filter = 'none';
         }
 
         function drawPhase2() {
