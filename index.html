@@ -283,17 +283,17 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Varied blob sizes for interesting Rorschach shapes
+                // Smaller irregular blobs for true Rorschach patterns
                 const sizeType = Math.random();
-                if (sizeType < 0.2) {
-                    // Small satellite drops
-                    this.baseRadius = 15 + Math.random() * 15;
-                } else if (sizeType < 0.6) {
-                    // Medium masses - main shapes
-                    this.baseRadius = 30 + Math.random() * 25;
+                if (sizeType < 0.4) {
+                    // Tiny irregular drops
+                    this.baseRadius = 8 + Math.random() * 10;
+                } else if (sizeType < 0.8) {
+                    // Small to medium irregular shapes
+                    this.baseRadius = 18 + Math.random() * 15;
                 } else {
-                    // Large central blobs
-                    this.baseRadius = 55 + Math.random() * 30;
+                    // Occasional larger mass
+                    this.baseRadius = 33 + Math.random() * 20;
                 }
 
                 this.radius = this.baseRadius;
@@ -455,8 +455,8 @@
 
         function initBlobs() {
             blobs = [];
-            // Fewer blobs for distinct Rorschach shapes with interesting gaps
-            const numBlobs = 15 + Math.floor(Math.random() * 12);
+            // More smaller blobs for intricate irregular Rorschach patterns
+            const numBlobs = 30 + Math.floor(Math.random() * 25);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -475,8 +475,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // Higher threshold for distinct shapes with interesting gaps
-            const threshold = 2.5;
+            // Much higher threshold to prevent merging - creates distinct irregular shapes
+            const threshold = 4.5;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
