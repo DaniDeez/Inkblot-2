@@ -342,10 +342,6 @@
             // Transition through colors at visible speed
             currentHue = (currentHue + 1.5) % 360;
 
-            // Enhanced glow for blob effect
-            drawingContext.shadowBlur = 40;
-            drawingContext.shadowColor = `hsl(${currentHue}, 100%, 60%)`;
-
             // Create symmetrical inkblot using flow field
             push();
             translate(width / 2, height / 2);
@@ -382,14 +378,19 @@
                 // Unified color with slight variations for depth
                 let hueVariation = sin(p.noiseOffset + frameCount * 0.02) * 20;
                 let particleHue = (currentHue + hueVariation) % 360;
-                fill(particleHue, 100, 100, 70);
+
+                // Add intense glow and gaussian blur
+                drawingContext.shadowBlur = 120;
+                drawingContext.shadowColor = `hsl(${particleHue}, 100%, 70%)`;
+
+                fill(particleHue, 100, 100, 80);
                 noStroke();
 
                 // Draw organic blob shapes with blur
                 ellipse(p.x, p.y, p.size * p.life);
 
                 // Mirrored right side
-                fill(particleHue, 100, 100, 65);
+                fill(particleHue, 100, 100, 75);
                 ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
