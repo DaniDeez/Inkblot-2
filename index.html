@@ -299,29 +299,29 @@
                 this.radius = this.baseRadius;
                 this.targetRadius = this.baseRadius;
 
-                // Velocity - slower for smaller blobs
-                const velocityScale = this.baseRadius / 30;
-                this.vx = (Math.random() - 0.5) * 0.8 * velocityScale;
-                this.vy = (Math.random() - 0.5) * 0.8 * velocityScale;
+                // Velocity - much faster for dramatic motion
+                const velocityScale = this.baseRadius / 20;
+                this.vx = (Math.random() - 0.5) * 3.5 * velocityScale;
+                this.vy = (Math.random() - 0.5) * 3.5 * velocityScale;
 
                 // Organic motion parameters
                 this.noiseOffsetX = Math.random() * 1000;
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Pulsing parameters - scaled to blob size
+                // Pulsing parameters - scaled to blob size with dramatic variation
                 this.phase = Math.random() * Math.PI * 2;
-                this.pulseSpeed = 0.008 + Math.random() * 0.012;
-                this.pulseAmount = this.baseRadius * 0.2 + Math.random() * this.baseRadius * 0.3;
+                this.pulseSpeed = 0.015 + Math.random() * 0.025;
+                this.pulseAmount = this.baseRadius * 0.4 + Math.random() * this.baseRadius * 0.6;
 
-                // Rise and fall like lava lamp
-                this.verticalDrift = (Math.random() - 0.5) * 0.8;
+                // Rise and fall like lava lamp - more dramatic
+                this.verticalDrift = (Math.random() - 0.5) * 2.0;
                 this.driftPhase = Math.random() * Math.PI * 2;
-                this.driftSpeed = 0.005 + Math.random() * 0.01;
+                this.driftSpeed = 0.012 + Math.random() * 0.020;
 
-                // Morphing
+                // Morphing - faster and more dramatic
                 this.morphPhase = Math.random() * Math.PI * 2;
-                this.morphSpeed = 0.006 + Math.random() * 0.008;
+                this.morphSpeed = 0.012 + Math.random() * 0.018;
             }
 
             update(time) {
@@ -335,13 +335,13 @@
                     this.y * this.noiseScale + time * 0.0001
                 ) * 2 - 1;
 
-                // Apply noise to velocity for organic drift
-                this.vx += noiseX * 0.08;
-                this.vy += noiseY * 0.08;
+                // Apply noise to velocity for organic drift - much stronger
+                this.vx += noiseX * 0.25;
+                this.vy += noiseY * 0.25;
 
-                // Lava lamp rise and fall
+                // Lava lamp rise and fall - more pronounced
                 this.driftPhase += this.driftSpeed;
-                this.vy += Math.sin(this.driftPhase) * 0.05 + this.verticalDrift * 0.02;
+                this.vy += Math.sin(this.driftPhase) * 0.15 + this.verticalDrift * 0.08;
 
                 // Pulsing radius - breathing effect
                 this.phase += this.pulseSpeed;
@@ -385,18 +385,18 @@
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist > 0) {
-                    this.vx += (dx / dist) * 0.01;
-                    this.vy += (dy / dist) * 0.01;
+                    this.vx += (dx / dist) * 0.03;
+                    this.vy += (dy / dist) * 0.03;
                 }
 
-                // Viscous damping - lava lamp effect
-                this.vx *= 0.985;
-                this.vy *= 0.985;
+                // Less damping for more sustained motion
+                this.vx *= 0.97;
+                this.vy *= 0.97;
 
-                // Randomly change direction occasionally
-                if (Math.random() < 0.01) {
-                    this.vx += (Math.random() - 0.5) * 0.5;
-                    this.vy += (Math.random() - 0.5) * 0.5;
+                // Randomly change direction more frequently for variety
+                if (Math.random() < 0.03) {
+                    this.vx += (Math.random() - 0.5) * 1.5;
+                    this.vy += (Math.random() - 0.5) * 1.5;
                 }
             }
         }
@@ -876,6 +876,15 @@
 
         initBlobs();
         initStars();
+
+        // Draw initial frame immediately before animation starts
+        ctx.putImageData(parchmentBackground, 0, 0);
+        drawMetaball();
+
+        // Draw initial stars
+        stars.forEach(star => star.draw());
+
+        // Start animation loop
         animate();
     </script>
 </body>
