@@ -24,9 +24,8 @@
 
         .oracle-ui {
             position: fixed;
-            top: 50%;
+            bottom: 20px;
             right: 20px;
-            transform: translateY(-50%);
             text-align: center;
             z-index: 100;
             opacity: 0;
@@ -34,12 +33,12 @@
             transition: opacity 2s ease-in-out;
             pointer-events: none;
             background: rgba(0, 0, 0, 0.95);
-            padding: 30px;
+            padding: 25px;
             border: 2px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-            max-width: 400px;
-            max-height: 85vh;
+            max-width: 380px;
+            max-height: 60vh;
             overflow-y: auto;
         }
 
@@ -343,8 +342,8 @@
             // Transition through colors at visible speed
             currentHue = (currentHue + 1.5) % 360;
 
-            // Enhanced glow for blob effect
-            drawingContext.shadowBlur = 50;
+            // Enhanced glow for blob effect - much larger blur
+            drawingContext.shadowBlur = 80;
             drawingContext.shadowColor = `hsl(${currentHue}, 100%, 60%)`;
 
             // Create symmetrical inkblot using flow field
@@ -360,14 +359,14 @@
 
                 // Flow field using Perlin noise with varied scales for organic shapes
                 let angle = noise(p.x * p.noiseScale, p.y * p.noiseScale, p.noiseOffset) * TWO_PI * 3;
-                let force = noise(p.x * p.noiseScale * 2, p.y * p.noiseScale * 2, p.noiseOffset + 100) * 1.5;
+                let force = noise(p.x * p.noiseScale * 2, p.y * p.noiseScale * 2, p.noiseOffset + 100) * 2.5;
 
                 p.vx += cos(angle) * force;
                 p.vy += sin(angle) * force;
 
-                // Damping - less damping for more movement
-                p.vx *= 0.94;
-                p.vy *= 0.94;
+                // Damping - even less for faster morphing
+                p.vx *= 0.92;
+                p.vy *= 0.92;
 
                 // Update position
                 p.x += p.vx;
@@ -383,14 +382,14 @@
                 // Unified color with slight variations for depth
                 let hueVariation = sin(p.noiseOffset + frameCount * 0.02) * 20;
                 let particleHue = (currentHue + hueVariation) % 360;
-                fill(particleHue, 100, 100, 70);
+                fill(particleHue, 100, 100, 85);
                 noStroke();
 
                 // Draw organic blob shapes with blur
                 ellipse(p.x, p.y, p.size * p.life);
 
                 // Mirrored right side
-                fill(particleHue, 100, 100, 65);
+                fill(particleHue, 100, 100, 80);
                 ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
@@ -404,7 +403,7 @@
                     p.noiseScale = random(0.005, 0.02);
                 }
 
-                p.noiseOffset += 0.03;
+                p.noiseOffset += 0.05;
             }
 
             pop();
