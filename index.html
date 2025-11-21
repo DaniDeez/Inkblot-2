@@ -259,6 +259,12 @@
             height = canvas.height = window.innerHeight;
         }
 
+        // Simple noise function for organic movement
+        function noise(x, y) {
+            const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+            return n - Math.floor(n);
+        }
+
         class Blob {
             constructor() {
                 this.reset();
@@ -267,38 +273,106 @@
             reset() {
                 this.x = Math.random() * (width / 2);
                 this.y = Math.random() * height;
-                this.radius = 40 + Math.random() * 80;
-                this.targetRadius = this.radius;
-                this.vx = (Math.random() - 0.5) * 0.3;
-                this.vy = (Math.random() - 0.5) * 0.3;
+                this.baseRadius = 50 + Math.random() * 100;
+                this.radius = this.baseRadius;
+                this.targetRadius = this.baseRadius;
+
+                // Velocity
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+
+                // Organic motion parameters
+                this.noiseOffsetX = Math.random() * 1000;
+                this.noiseOffsetY = Math.random() * 1000;
+                this.noiseScale = 0.002 + Math.random() * 0.003;
+
+                // Pulsing parameters
                 this.phase = Math.random() * Math.PI * 2;
-                this.pulseSpeed = 0.01 + Math.random() * 0.02;
+                this.pulseSpeed = 0.008 + Math.random() * 0.012;
+                this.pulseAmount = 20 + Math.random() * 40;
+
+                // Rise and fall like lava lamp
+                this.verticalDrift = (Math.random() - 0.5) * 0.8;
+                this.driftPhase = Math.random() * Math.PI * 2;
+                this.driftSpeed = 0.005 + Math.random() * 0.01;
+
+                // Morphing
+                this.morphPhase = Math.random() * Math.PI * 2;
+                this.morphSpeed = 0.006 + Math.random() * 0.008;
             }
 
             update(time) {
+                // Organic noise-based movement
+                const noiseX = noise(
+                    this.x * this.noiseScale + time * 0.0001,
+                    this.y * this.noiseScale
+                ) * 2 - 1;
+                const noiseY = noise(
+                    this.x * this.noiseScale,
+                    this.y * this.noiseScale + time * 0.0001
+                ) * 2 - 1;
+
+                // Apply noise to velocity for organic drift
+                this.vx += noiseX * 0.08;
+                this.vy += noiseY * 0.08;
+
+                // Lava lamp rise and fall
+                this.driftPhase += this.driftSpeed;
+                this.vy += Math.sin(this.driftPhase) * 0.05 + this.verticalDrift * 0.02;
+
+                // Pulsing radius - breathing effect
                 this.phase += this.pulseSpeed;
+                this.morphPhase += this.morphSpeed;
 
-                const pulse = Math.sin(this.phase) * 15;
-                this.targetRadius = (40 + Math.random() * 80) + pulse;
-                this.radius += (this.targetRadius - this.radius) * 0.03;
+                const pulse = Math.sin(this.phase) * this.pulseAmount;
+                const morph = Math.sin(this.morphPhase * 1.7) * (this.pulseAmount * 0.6);
+                this.targetRadius = this.baseRadius + pulse + morph;
+                this.radius += (this.targetRadius - this.radius) * 0.06;
 
+                // Apply velocity
                 this.x += this.vx;
                 this.y += this.vy;
 
-                if (this.x < -this.radius || this.x > width / 2 + this.radius) {
-                    this.vx *= -1;
-                }
-                if (this.y < -this.radius || this.y > height + this.radius) {
-                    this.vy *= -1;
+                // Soft boundaries with wrapping and bouncing
+                const margin = this.radius * 0.5;
+
+                if (this.x < -margin) {
+                    this.x = width / 2 + margin;
+                    this.vx *= 0.5;
+                } else if (this.x > width / 2 + margin) {
+                    this.x = -margin;
+                    this.vx *= 0.5;
                 }
 
-                const centerPullX = (width / 4 - this.x) * 0.001;
-                const centerPullY = (height / 2 - this.y) * 0.001;
-                this.vx += centerPullX;
-                this.vy += centerPullY;
+                if (this.y < -margin) {
+                    this.vy *= -0.7;
+                    this.y = -margin + 1;
+                } else if (this.y > height + margin) {
+                    this.vy *= -0.7;
+                    this.y = height + margin - 1;
+                }
 
-                this.vx *= 0.99;
-                this.vy *= 0.99;
+                // Gentle pull toward center for stability
+                const centerX = width / 4;
+                const centerY = height / 2;
+                const dx = centerX - this.x;
+                const dy = centerY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist > 0) {
+                    this.vx += (dx / dist) * 0.015;
+                    this.vy += (dy / dist) * 0.015;
+                }
+
+                // Viscous damping - lava lamp effect
+                this.vx *= 0.985;
+                this.vy *= 0.985;
+
+                // Randomly change direction occasionally
+                if (Math.random() < 0.01) {
+                    this.vx += (Math.random() - 0.5) * 0.5;
+                    this.vy += (Math.random() - 0.5) * 0.5;
+                }
             }
         }
 
@@ -357,7 +431,7 @@
 
         function initBlobs() {
             blobs = [];
-            const numBlobs = 8 + Math.floor(Math.random() * 8);
+            const numBlobs = 12 + Math.floor(Math.random() * 10);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -375,6 +449,9 @@
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
 
+            // Lower threshold for more fluid merging and organic shapes
+            const threshold = 0.9;
+
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width / 2; x++) {
                     let sum = 0;
@@ -382,16 +459,27 @@
                     for (let blob of blobs) {
                         const dx = x - blob.x;
                         const dy = y - blob.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        sum += (blob.radius * blob.radius) / (dist * dist + 1);
+                        const distSq = dx * dx + dy * dy;
+
+                        // Metaball formula with smooth falloff
+                        if (distSq > 0) {
+                            sum += (blob.radius * blob.radius) / distSq;
+                        } else {
+                            sum += blob.radius * 10;
+                        }
                     }
 
-                    const threshold = 1.2;
                     const index = (y * width + x) * 4;
 
                     if (sum > threshold) {
-                        const intensity = Math.min(sum / threshold, 1);
-                        const alpha = intensity * 255;
+                        // Smooth edge anti-aliasing
+                        let alpha = 255;
+
+                        if (sum < threshold * 1.5) {
+                            const edgeFactor = (sum - threshold) / (threshold * 0.5);
+                            alpha = Math.min(255, edgeFactor * 255);
+                        }
+
                         data[index] = 10;
                         data[index + 1] = 10;
                         data[index + 2] = 10;
@@ -400,6 +488,7 @@
                 }
             }
 
+            // Mirror to create symmetry
             for (let y = 0; y < height; y++) {
                 for (let x = Math.floor(width / 2); x < width; x++) {
                     const mirrorX = width - x - 1;
