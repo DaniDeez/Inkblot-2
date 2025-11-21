@@ -487,13 +487,13 @@
             colorMode(HSB, 360, 100, 100, 100);
 
             // Initialize inkblot particles - fewer, much larger blobs
-            for (let i = 0; i < 70; i++) {
+            for (let i = 0; i < 35; i++) {
                 particles.push({
-                    x: random(-400, 400),
-                    y: random(-400, 400),
+                    x: random(-250, 250),
+                    y: random(-250, 250),
                     vx: random(-2, 2),
                     vy: random(-2, 2),
-                    size: random(80, 140),
+                    size: random(150, 250),
                     noiseOffset: random(10000),
                     noiseScale: random(0.005, 0.02),
                     life: random(0.7, 1)
@@ -521,7 +521,7 @@
             currentHue = (currentHue + 2.0) % 360;
 
             // Apply optimized gaussian blur filter for performance
-            drawingContext.filter = 'blur(15px)';
+            drawingContext.filter = 'blur(25px)';
 
             // Create symmetrical inkblot using flow field
             push();
@@ -561,24 +561,24 @@
                 let particleHue = (currentHue + hueVariation) % 360;
 
                 // Optimized glow and gaussian blur for performance
-                drawingContext.shadowBlur = 100;
+                drawingContext.shadowBlur = 140;
                 drawingContext.shadowColor = `hsl(${particleHue}, 100%, 70%)`;
 
-                fill(particleHue, 100, 100, 50);
+                fill(particleHue, 100, 100, 55);
                 noStroke();
 
                 // Draw organic blob shapes with blur
                 ellipse(p.x, p.y, p.size * p.life);
 
                 // Mirrored right side
-                fill(particleHue, 100, 100, 45);
+                fill(particleHue, 100, 100, 50);
                 ellipse(-p.x, p.y, p.size * p.life * 0.95);
 
                 // Update life and reset if needed
                 p.life -= 0.001;
                 if (p.life <= 0.3) {
-                    p.x = random(-400, 400);
-                    p.y = random(-400, 400);
+                    p.x = random(-250, 250);
+                    p.y = random(-250, 250);
                     p.vx = random(-2, 2);
                     p.vy = random(-2, 2);
                     p.life = random(0.7, 1);
@@ -787,13 +787,13 @@
 
             // Reinitialize particles - fewer, much larger blobs
             particles = [];
-            for (let i = 0; i < 70; i++) {
+            for (let i = 0; i < 35; i++) {
                 particles.push({
-                    x: random(-400, 400),
-                    y: random(-400, 400),
+                    x: random(-250, 250),
+                    y: random(-250, 250),
                     vx: random(-2, 2),
                     vy: random(-2, 2),
-                    size: random(80, 140),
+                    size: random(150, 250),
                     noiseOffset: random(10000),
                     noiseScale: random(0.005, 0.02),
                     life: random(0.7, 1)
