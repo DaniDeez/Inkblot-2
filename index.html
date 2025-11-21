@@ -283,44 +283,44 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Bigger irregular blob sizes for 5 distinct Rorschach clusters
+                // HUGE blobs for true flowing Rorschach shapes
                 const sizeType = Math.random();
-                if (sizeType < 0.2) {
-                    // Smaller irregular clusters
-                    this.baseRadius = 50 + Math.random() * 30;
-                } else if (sizeType < 0.6) {
-                    // Medium irregular clusters
-                    this.baseRadius = 80 + Math.random() * 40;
+                if (sizeType < 0.3) {
+                    // Medium flowing masses
+                    this.baseRadius = 80 + Math.random() * 50;
+                } else if (sizeType < 0.7) {
+                    // Large flowing shapes
+                    this.baseRadius = 130 + Math.random() * 60;
                 } else {
-                    // Large irregular blob clusters
-                    this.baseRadius = 120 + Math.random() * 50;
+                    // Massive central blobs
+                    this.baseRadius = 190 + Math.random() * 70;
                 }
 
                 this.radius = this.baseRadius;
                 this.targetRadius = this.baseRadius;
 
-                // Velocity - SLOW for flowing lava lamp motion
-                this.vx = (Math.random() - 0.5) * 2.0;
-                this.vy = (Math.random() - 0.5) * 2.0;
+                // VERY slow velocity for hypnotic flowing motion
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = (Math.random() - 0.5) * 0.8;
 
                 // Organic motion parameters
                 this.noiseOffsetX = Math.random() * 1000;
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Pulsing parameters - MASSIVE for irregular morphing shapes
+                // EXTREME morphing for constantly changing irregular shapes
                 this.phase = Math.random() * Math.PI * 2;
-                this.pulseSpeed = 0.02 + Math.random() * 0.03;
-                this.pulseAmount = this.baseRadius * 1.5 + Math.random() * this.baseRadius * 2.0;
+                this.pulseSpeed = 0.01 + Math.random() * 0.015;
+                this.pulseAmount = this.baseRadius * 2.0 + Math.random() * this.baseRadius * 3.0;
 
-                // Rise and fall like lava lamp - slow and smooth
-                this.verticalDrift = (Math.random() - 0.5) * 1.5;
+                // Very slow rise and fall - hypnotic lava lamp
+                this.verticalDrift = (Math.random() - 0.5) * 0.5;
                 this.driftPhase = Math.random() * Math.PI * 2;
-                this.driftSpeed = 0.01 + Math.random() * 0.02;
+                this.driftSpeed = 0.005 + Math.random() * 0.008;
 
-                // Morphing - MASSIVE for organic irregular shapes
+                // EXTREME morphing speed for organic shape changes
                 this.morphPhase = Math.random() * Math.PI * 2;
-                this.morphSpeed = 0.015 + Math.random() * 0.025;
+                this.morphSpeed = 0.008 + Math.random() * 0.015;
             }
 
             update(time) {
@@ -334,13 +334,13 @@
                     this.y * this.noiseScale + time * 0.0001
                 ) * 2 - 1;
 
-                // Apply noise to velocity for organic drift - gentle
-                this.vx += noiseX * 0.15;
-                this.vy += noiseY * 0.15;
+                // Very gentle noise for smooth organic drift
+                this.vx += noiseX * 0.08;
+                this.vy += noiseY * 0.08;
 
-                // Lava lamp rise and fall - slow and smooth
+                // Very slow lava lamp rise and fall
                 this.driftPhase += this.driftSpeed;
-                this.vy += Math.sin(this.driftPhase) * 0.2 + this.verticalDrift * 0.05;
+                this.vy += Math.sin(this.driftPhase) * 0.1 + this.verticalDrift * 0.02;
 
                 // Pulsing radius - breathing effect
                 this.phase += this.pulseSpeed;
@@ -365,18 +365,21 @@
                 const topBound = centerY - inkblotHeight / 2;
                 const bottomBound = centerY + inkblotHeight / 2;
 
-                // Bounce off boundaries with minimal energy loss
-                if (this.x < leftBound || this.x > rightBound) {
-                    this.vx *= -0.95;
-                    this.x = Math.max(leftBound, Math.min(rightBound, this.x));
+                // Soft boundary - slow down near edges, no hard bounce
+                const edgeMargin = 50;
+                if (this.x < leftBound + edgeMargin) {
+                    this.vx += (leftBound + edgeMargin - this.x) * 0.001;
+                } else if (this.x > rightBound - edgeMargin) {
+                    this.vx -= (this.x - (rightBound - edgeMargin)) * 0.001;
                 }
 
-                if (this.y < topBound || this.y > bottomBound) {
-                    this.vy *= -0.95;
-                    this.y = Math.max(topBound, Math.min(bottomBound, this.y));
+                if (this.y < topBound + edgeMargin) {
+                    this.vy += (topBound + edgeMargin - this.y) * 0.001;
+                } else if (this.y > bottomBound - edgeMargin) {
+                    this.vy -= (this.y - (bottomBound - edgeMargin)) * 0.001;
                 }
 
-                // Gentle pull toward center of inkblot region
+                // Gentle pull toward center
                 const targetX = centerX - inkblotWidth / 4;
                 const targetY = centerY;
                 const dx = targetX - this.x;
@@ -384,18 +387,18 @@
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist > 0) {
-                    this.vx += (dx / dist) * 0.02;
-                    this.vy += (dy / dist) * 0.02;
+                    this.vx += (dx / dist) * 0.01;
+                    this.vy += (dy / dist) * 0.01;
                 }
 
-                // Smooth damping for flowing motion
-                this.vx *= 0.98;
-                this.vy *= 0.98;
+                // Strong damping for very smooth flowing motion
+                this.vx *= 0.96;
+                this.vy *= 0.96;
 
-                // Occasional gentle random impulses
-                if (Math.random() < 0.02) {
-                    this.vx += (Math.random() - 0.5) * 1.0;
-                    this.vy += (Math.random() - 0.5) * 1.0;
+                // Rare gentle random impulses
+                if (Math.random() < 0.01) {
+                    this.vx += (Math.random() - 0.5) * 0.3;
+                    this.vy += (Math.random() - 0.5) * 0.3;
                 }
             }
         }
@@ -455,8 +458,8 @@
 
         function initBlobs() {
             blobs = [];
-            // More blobs for complex flowing Rorschach shapes
-            const numBlobs = 10 + Math.floor(Math.random() * 5);
+            // Fewer huge blobs for clean flowing Rorschach shapes
+            const numBlobs = 6 + Math.floor(Math.random() * 3);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -475,8 +478,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // Very low threshold for organic irregular Rorschach shapes
-            const threshold = 1.5;
+            // Low threshold for organic merging and flowing irregular shapes
+            const threshold = 0.8;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
