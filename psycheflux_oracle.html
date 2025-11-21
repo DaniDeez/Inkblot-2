@@ -281,21 +281,104 @@
 
         // Symbol readings mapping
         const symbolReadings = {
-            wolf: "Instinct, protection, loneliness, pack-bond. The guardian of thresholds.",
-            eye: "Seeing beyond. Intuition. Revelation. The seer's portal.",
-            spiral: "Cycles, DNA, the infinite inward. Becoming without end.",
-            doorway: "Threshold, unknown, new path. The soul's next step.",
-            snake: "Transformation, hidden power, kundalini, release.",
-            tree: "Growth, lineage, rooted wisdom. Connection between worlds.",
-            flame: "Purification, passion, destruction. The soul on fire.",
-            bird: "Freedom, perspective, messages from the spirit realm.",
-            water: "Emotion, flow, cleansing. The subconscious speaks.",
-            mountain: "Stability, challenge, spiritual ascent. The eternal witness.",
-            moon: "Intuition, cycles, the feminine mystery. Lunar consciousness.",
-            sun: "Vitality, consciousness, enlightenment. Solar power.",
-            shadow: "The unconscious, hidden aspects, integration of the dark.",
-            mirror: "Self-reflection, truth, the soul's gaze upon itself.",
-            bridge: "Connection, transition, crossing between worlds."
+            // Foods & Plants
+            rose: { message: "Something tender is blooming—let love rise without guarding the thorns.", triggers: ["rose", "petal", "thorn", "flower", "blossom", "love"] },
+            apple: { message: "Temptation, knowledge, or nourishment—what are you truly hungry for?", triggers: ["apple", "fruit", "red fruit", "orchard"] },
+            grape: { message: "Abundance, indulgence, or communion—what are you celebrating or sharing?", triggers: ["grape", "vine", "wine", "bunch"] },
+            banana: { message: "Play, humor, or energy—lighten up and follow the curve of joy.", triggers: ["banana", "yellow fruit", "peel"] },
+            coconut: { message: "A hard shell may be protecting something sweet and sustaining within.", triggers: ["coconut", "shell", "palm", "tropical"] },
+            pineapple: { message: "You are more welcoming than you think—openness is your magnetism.", triggers: ["pineapple", "tropical fruit", "spiky fruit"] },
+            lemon: { message: "Sourness has a purpose—transmute discomfort into refreshment.", triggers: ["lemon", "citrus", "yellow fruit"] },
+            avocado: { message: "Richness lies in your softness—nourish what feels fertile.", triggers: ["avocado", "green fruit", "seed", "pit"] },
+            corn: { message: "Gratitude, harvest, and legacy—remember what sustains you.", triggers: ["corn", "maize", "harvest", "kernel"] },
+            mushroom: { message: "Something hidden or sacred is sprouting—trust what's growing in the dark.", triggers: ["mushroom", "fungus", "cap", "spore"] },
+            carrot: { message: "What lies beneath the surface is more nourishing than it seems.", triggers: ["carrot", "root", "vegetable", "orange veg"] },
+            bread: { message: "Simplicity and sustenance—return to what feeds your soul.", triggers: ["bread", "loaf", "bake", "grain"] },
+            egg: { message: "Something delicate is incubating—handle new beginnings with care.", triggers: ["egg", "shell", "crack", "hatch"] },
+            milk: { message: "Nurturing and softness—what emotional nourishment do you crave?", triggers: ["milk", "dairy", "white liquid", "nourish"] },
+            honey: { message: "Sweetness is present—let yourself receive life's golden moments.", triggers: ["honey", "bee", "nectar", "jar"] },
+            tea: { message: "Quiet wisdom is steeping—pause and sip before acting.", triggers: ["tea", "cup", "brew", "herbal"] },
+            pepper: { message: "A little heat awakens the senses—spice things up mindfully.", triggers: ["pepper", "spice", "hot", "chili"] },
+            rice: { message: "Humility and abundance—small offerings make great feasts.", triggers: ["rice", "grain", "bowl", "harvest"] },
+
+            // Animals
+            bird: { message: "A message is arriving in your life; trust where your intuition wants to fly.", triggers: ["bird", "eagle", "hawk", "falcon", "sparrow", "pigeon", "dove", "raven", "crow", "feathers", "wings"] },
+            butterfly: { message: "You are shedding an old form and softly emerging into a new one.", triggers: ["butterfly", "moth", "transformation", "wings", "cocoon"] },
+            snake: { message: "Transformation is unfolding; let the old layer release without fear.", triggers: ["snake", "serpent", "cobra", "viper", "python", "coil", "slither", "reptile"] },
+            fish: { message: "Something emotional beneath the surface is ready to be acknowledged.", triggers: ["fish", "fins", "gills", "swimmer", "aquatic", "sea creature"] },
+            dog: { message: "Loyalty and companionship are themes—ask where your devotion lies.", triggers: ["dog", "puppy", "hound", "canine"] },
+            cat: { message: "Independence and intuition guide you; follow your subtle knowing.", triggers: ["cat", "kitten", "feline"] },
+            horse: { message: "A surge of movement or freedom is calling; trust your momentum.", triggers: ["horse", "stallion", "mare", "pony", "hoof", "mane"] },
+            lion: { message: "Courage stirs quietly—step into your power with calm authority.", triggers: ["lion", "mane", "roar", "pride"] },
+            bear: { message: "You may need rest or protection; strength and retreat coexist.", triggers: ["bear", "paw", "grizzly", "claws"] },
+            deer: { message: "Approach your next step with gentleness; sensitivity is wisdom.", triggers: ["deer", "antlers", "stag", "doe", "fawn"] },
+            owl: { message: "Your intuition is sharper than you think; something hidden is becoming clear.", triggers: ["owl", "eyes", "wisdom", "night bird"] },
+            bat: { message: "A change in perspective will reveal what you couldn't see before.", triggers: ["bat", "wings", "night", "upside down"] },
+            rabbit: { message: "Something new is emerging quickly—stay alert but soften the fear.", triggers: ["rabbit", "bunny", "hare", "jump"] },
+            fox: { message: "Cleverness and adaptability are needed; trust your instinctive intelligence.", triggers: ["fox", "cunning", "clever", "sly"] },
+            bee: { message: "Community, work, and purpose are aligning; what you build matters.", triggers: ["bee", "hive", "honeycomb", "swarm", "pollinate"] },
+
+            // Body Parts
+            face: { message: "You're meeting a truth about yourself or another—look gently.", triggers: ["face", "expression", "profile", "visage"] },
+            eyes: { message: "A deeper awareness is opening; perception is shifting.", triggers: ["eyes", "vision", "seeing", "gaze"] },
+            heart: { message: "Emotional honesty is needed; vulnerability is your guide.", triggers: ["heart", "love", "ache", "chest", "pulse"] },
+            hand: { message: "You are ready to reach, build, heal, or release—choose with intention.", triggers: ["hand", "fingers", "palm", "grasp", "hold"] },
+            foot: { message: "You're preparing for a new direction; the next step matters.", triggers: ["foot", "steps", "footprint", "walk", "path"] },
+            head: { message: "Thought, clarity, or decision-making is emphasized—listen inward.", triggers: ["head", "mind", "brain", "thinking", "crown"] },
+            spine: { message: "Stand in your integrity; your strength comes from alignment.", triggers: ["spine", "backbone", "posture", "stand tall"] },
+            wings: { message: "A part of you is ready to rise or transcend limitation.", triggers: ["wings", "feathers", "flight", "angel"] },
+            mouth: { message: "Expression is needed; speak the truth you've been holding.", triggers: ["mouth", "lips", "voice", "speak", "sing"] },
+
+            // Nature
+            tree: { message: "Growth is happening in silence; your roots and branches both need attention.", triggers: ["tree", "branches", "roots", "bark", "trunk"] },
+            seed: { message: "The beginning is invisible—something small holds immense potential.", triggers: ["seed", "sprout", "begin", "germinate"] },
+            flower: { message: "Something in you is blooming—open to being seen.", triggers: ["flower", "blossom", "bloom", "petal"] },
+            leaf: { message: "It's time to release what's ready to fall away.", triggers: ["leaf", "leaves", "fall", "green"] },
+            mountain: { message: "Strength, endurance, and a long view are needed now.", triggers: ["mountain", "peak", "summit", "hill", "cliff"] },
+            river: { message: "Emotions want to move; flow instead of resisting.", triggers: ["river", "stream", "flow", "current"] },
+            ocean: { message: "Depth and memory are rising—trust the tides in you.", triggers: ["ocean", "sea", "depth", "wave", "tide"] },
+            rain: { message: "Emotional cleansing is occurring; let the release happen.", triggers: ["rain", "drizzle", "shower", "wet", "storm"] },
+            cloud: { message: "Something is unclear now, but clarity is forming.", triggers: ["cloud", "fog", "mist", "haze"] },
+            sun: { message: "Illumination, vitality, and renewal are returning.", triggers: ["sun", "light", "radiance", "shine", "solar"] },
+            moon: { message: "Your emotional cycles matter; honor your changing light.", triggers: ["moon", "lunar", "crescent", "new moon", "full moon"] },
+            star: { message: "A quiet hope or guidance is emerging—follow the subtle point of light.", triggers: ["star", "twinkle", "shine", "guidance"] },
+            lightning: { message: "Sudden insight or truth is striking—let it reveal what it must.", triggers: ["lightning", "strike", "shock", "flash"] },
+
+            // Objects
+            key: { message: "You have access to the solution; unlock what you've avoided.", triggers: ["key", "unlock", "solution", "open"] },
+            door: { message: "A transition or new opportunity is present—step toward it.", triggers: ["door", "entry", "exit", "threshold"] },
+            bridge: { message: "You are connecting two parts of yourself or your life—move carefully.", triggers: ["bridge", "connect", "span", "arch"] },
+            ladder: { message: "You're ascending or leveling up—progress is real.", triggers: ["ladder", "climb", "rung", "steps"] },
+            crown: { message: "You're being asked to step into authority or self-respect.", triggers: ["crown", "royalty", "authority", "throne"] },
+            mask: { message: "Something hidden is ready to be revealed—honesty brings clarity.", triggers: ["mask", "hidden", "disguise", "cover"] },
+            sword: { message: "Truth and decisiveness are needed; cut away what obscures.", triggers: ["sword", "blade", "cut", "truth"] },
+            shield: { message: "Protection or boundaries are required—guard what matters.", triggers: ["shield", "guard", "armor", "defense"] },
+            anchor: { message: "You're craving stability or grounding—root yourself before moving.", triggers: ["anchor", "ground", "dock", "hold"] },
+            lantern: { message: "Guidance appears in small lights—follow the next step, not the whole path.", triggers: ["lantern", "light", "glow", "guidance"] },
+            book: { message: "The answer you seek is already known within—let remembering replace searching.", triggers: ["book", "pages", "read", "story", "text"] },
+            mirror: { message: "What you perceive outside may be revealing something within—look again.", triggers: ["mirror", "reflect", "glass", "see"] },
+            clock: { message: "Time is flexible—what matters now is rhythm, not urgency.", triggers: ["clock", "time", "tick", "hour", "watch"] },
+
+            // More Flowers
+            tulip: { message: "A quiet grace is unfolding; even brief beauty is worth blooming for.", triggers: ["tulip", "spring flower", "bulb", "garden", "grace"] },
+            lily: { message: "You are being called back to purity—shed what stains the sacred within.", triggers: ["lily", "white flower", "purity", "funeral flower", "easter"] },
+            daisy: { message: "Innocence wants to speak—can you still hear your younger self?", triggers: ["daisy", "meadow flower", "innocence", "child", "simplicity"] },
+            sunflower: { message: "Your spirit is turning toward light—let joy be your orientation.", triggers: ["sunflower", "yellow flower", "sun", "field", "joy", "light"] },
+            orchid: { message: "You are rare and radiant—power does not always shout.", triggers: ["orchid", "exotic flower", "elegance", "fertility", "beauty"] },
+            peony: { message: "Abundance and tenderness coexist—open without apology.", triggers: ["peony", "pink flower", "lush", "romance", "feminine"] },
+            carnation: { message: "Love is wearing a simpler face—notice the beauty in the ordinary.", triggers: ["carnation", "mother", "ceremony", "simple flower", "love"] },
+            chrysanthemum: { message: "Something ancestral is flowering—honor what continues through you.", triggers: ["chrysanthemum", "mum", "autumn flower", "ancestor", "funeral", "legacy"] },
+            lavender: { message: "Calm is not weakness—it is the strongest medicine in your field.", triggers: ["lavender", "purple flower", "calm", "herbal", "healing", "relax"] },
+            marigold: { message: "You are walking between worlds—let the sacred fire cleanse and guide.", triggers: ["marigold", "orange flower", "day of the dead", "ritual", "protection"] },
+            iris: { message: "A message is crossing the veil—be still enough to receive it.", triggers: ["iris", "rainbow flower", "message", "spiritual", "bridge", "veil"] },
+            hydrangea: { message: "Many truths exist in one heart—honor the complexity of your colors.", triggers: ["hydrangea", "bloom cluster", "garden", "emotions", "change", "layers"] },
+            zinnia: { message: "Endurance is beauty too—your persistence is poetry.", triggers: ["zinnia", "bright flower", "resilience", "persistence", "wildflower"] },
+            geranium: { message: "You are safe to root again—protection lives in simple comforts.", triggers: ["geranium", "windowsill", "comfort", "home", "protection", "safety"] },
+            poppy: { message: "A dream is speaking—slow down and listen to the sleep between your thoughts.", triggers: ["poppy", "red flower", "dream", "memory", "sleep", "war"] },
+            lotus: { message: "From mud to moonlight—you are rising untouched by what tried to drown you.", triggers: ["lotus", "sacred flower", "water", "rebirth", "resilience", "nirvana"] },
+            hibiscus: { message: "Desire is sacred—let your sensuality speak in full color.", triggers: ["hibiscus", "tropical flower", "red flower", "desire", "sensuality", "island"] },
+            daffodil: { message: "Hope is whispering beneath the surface—believe in the return of light.", triggers: ["daffodil", "yellow flower", "spring", "hope", "rebirth"] },
+            camellia: { message: "Longing is not weakness—beauty deepens in its quiet ache.", triggers: ["camellia", "tea flower", "love", "longing", "admiration", "blush"] }
         };
 
         function setup() {
@@ -521,16 +604,21 @@
                 colorList.appendChild(li);
             });
 
-            // Find symbolic meaning
+            // Find symbolic meaning using triggers
             let symbolFound = false;
             let symbolText = document.getElementById('symbolText');
 
-            for (let symbol in symbolReadings) {
-                if (userInput.includes(symbol)) {
-                    symbolText.textContent = symbolReadings[symbol];
-                    symbolFound = true;
-                    break;
+            for (let symbolKey in symbolReadings) {
+                let symbol = symbolReadings[symbolKey];
+                // Check if any trigger word matches the user input
+                for (let trigger of symbol.triggers) {
+                    if (userInput.includes(trigger)) {
+                        symbolText.textContent = symbol.message;
+                        symbolFound = true;
+                        break;
+                    }
                 }
+                if (symbolFound) break;
             }
 
             if (!symbolFound) {
