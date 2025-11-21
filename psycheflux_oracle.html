@@ -339,11 +339,11 @@
             let breathBrightness = map(sin(TWO_PI * breathingPhase / breathingCycle), -1, 1, 5, 15);
             background(0, 0, breathBrightness);
 
-            // Transition through colors at visible speed
-            currentHue = (currentHue + 1.5) % 360;
+            // Transition through colors faster
+            currentHue = (currentHue + 2.0) % 360;
 
-            // Apply canvas-wide gaussian blur filter
-            drawingContext.filter = 'blur(25px)';
+            // Apply optimized gaussian blur filter for performance
+            drawingContext.filter = 'blur(15px)';
 
             // Create symmetrical inkblot using flow field
             push();
@@ -358,14 +358,14 @@
 
                 // Flow field using Perlin noise with varied scales for organic shapes
                 let angle = noise(p.x * p.noiseScale, p.y * p.noiseScale, p.noiseOffset) * TWO_PI * 3;
-                let force = noise(p.x * p.noiseScale * 2, p.y * p.noiseScale * 2, p.noiseOffset + 100) * 2.5;
+                let force = noise(p.x * p.noiseScale * 2, p.y * p.noiseScale * 2, p.noiseOffset + 100) * 3.5;
 
                 p.vx += cos(angle) * force;
                 p.vy += sin(angle) * force;
 
-                // Damping - even less for faster morphing
-                p.vx *= 0.92;
-                p.vy *= 0.92;
+                // Less damping for faster, more energetic movement
+                p.vx *= 0.90;
+                p.vy *= 0.90;
 
                 // Update position
                 p.x += p.vx;
@@ -382,8 +382,8 @@
                 let hueVariation = sin(p.noiseOffset + frameCount * 0.02) * 20;
                 let particleHue = (currentHue + hueVariation) % 360;
 
-                // Add intense glow and gaussian blur - extreme blur to hide edges
-                drawingContext.shadowBlur = 180;
+                // Optimized glow and gaussian blur for performance
+                drawingContext.shadowBlur = 100;
                 drawingContext.shadowColor = `hsl(${particleHue}, 100%, 70%)`;
 
                 fill(particleHue, 100, 100, 50);
@@ -407,7 +407,7 @@
                     p.noiseScale = random(0.005, 0.02);
                 }
 
-                p.noiseOffset += 0.05;
+                p.noiseOffset += 0.08;
             }
 
             pop();
