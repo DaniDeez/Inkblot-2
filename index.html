@@ -283,44 +283,63 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Moderate blobs that create distinct Rorschach shapes
+                // Varied blob sizes for complex Rorschach patterns
                 const sizeType = Math.random();
-                if (sizeType < 0.3) {
+                if (sizeType < 0.4) {
                     // Small organic blobs
-                    this.baseRadius = 25 + Math.random() * 20;
-                } else if (sizeType < 0.7) {
+                    this.baseRadius = 20 + Math.random() * 25;
+                } else if (sizeType < 0.75) {
                     // Medium flowing shapes
-                    this.baseRadius = 45 + Math.random() * 25;
+                    this.baseRadius = 45 + Math.random() * 30;
                 } else {
                     // Larger central blobs
-                    this.baseRadius = 70 + Math.random() * 30;
+                    this.baseRadius = 75 + Math.random() * 35;
                 }
 
                 this.radius = this.baseRadius;
                 this.targetRadius = this.baseRadius;
 
-                // Gentle velocity for smooth organic motion
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
+                // More varied velocity for dynamic motion
+                const speedType = Math.random();
+                if (speedType < 0.3) {
+                    // Slow drifters
+                    this.vx = (Math.random() - 0.5) * 0.3;
+                    this.vy = (Math.random() - 0.5) * 0.3;
+                } else if (speedType < 0.7) {
+                    // Medium movers
+                    this.vx = (Math.random() - 0.5) * 0.6;
+                    this.vy = (Math.random() - 0.5) * 0.6;
+                } else {
+                    // Faster blobs for more dynamics
+                    this.vx = (Math.random() - 0.5) * 1.0;
+                    this.vy = (Math.random() - 0.5) * 1.0;
+                }
 
                 // Organic motion parameters
                 this.noiseOffsetX = Math.random() * 1000;
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Smooth morphing with 2-3 second cycles
+                // Irregular shape deformation using noise
+                this.shapeNoiseOffset = Math.random() * 1000;
+                this.shapeComplexity = 3 + Math.floor(Math.random() * 4); // 3-6 irregular features
+                this.irregularityAmount = 0.3 + Math.random() * 0.4; // 30-70% variation
+
+                // Varied morphing with 2-3 second cycles
                 this.phase = Math.random() * Math.PI * 2;
-                this.pulseSpeed = 0.035 + Math.random() * 0.017; // ~2-3 second cycles
-                this.pulseAmount = this.baseRadius * 0.4 + Math.random() * this.baseRadius * 0.3;
+                this.pulseSpeed = 0.03 + Math.random() * 0.025; // ~2-3 second cycles with variation
+                this.pulseAmount = this.baseRadius * (0.3 + Math.random() * 0.5);
 
-                // Very slow rise and fall - hypnotic lava lamp
-                this.verticalDrift = (Math.random() - 0.5) * 0.5;
+                // Lava lamp rise and fall - varied speeds
+                this.verticalDrift = (Math.random() - 0.5) * 0.7;
                 this.driftPhase = Math.random() * Math.PI * 2;
-                this.driftSpeed = 0.005 + Math.random() * 0.008;
+                this.driftSpeed = 0.004 + Math.random() * 0.012;
 
-                // Smooth morphing speed for organic shape changes (2-3 second cycles)
+                // Complex morphing with multiple frequencies
                 this.morphPhase = Math.random() * Math.PI * 2;
-                this.morphSpeed = 0.035 + Math.random() * 0.017;
+                this.morphSpeed = 0.03 + Math.random() * 0.025;
+                this.morphPhase2 = Math.random() * Math.PI * 2;
+                this.morphSpeed2 = 0.02 + Math.random() * 0.02;
             }
 
             update(time) {
@@ -342,14 +361,16 @@
                 this.driftPhase += this.driftSpeed;
                 this.vy += Math.sin(this.driftPhase) * 0.1 + this.verticalDrift * 0.02;
 
-                // Pulsing radius - breathing effect
+                // Complex pulsing and morphing - multiple frequencies for organic irregularity
                 this.phase += this.pulseSpeed;
                 this.morphPhase += this.morphSpeed;
+                this.morphPhase2 += this.morphSpeed2;
 
                 const pulse = Math.sin(this.phase) * this.pulseAmount;
-                const morph = Math.sin(this.morphPhase * 1.7) * (this.pulseAmount * 0.6);
-                this.targetRadius = this.baseRadius + pulse + morph;
-                this.radius += (this.targetRadius - this.radius) * 0.06;
+                const morph1 = Math.sin(this.morphPhase * 1.7) * (this.pulseAmount * 0.5);
+                const morph2 = Math.cos(this.morphPhase2 * 2.3) * (this.pulseAmount * 0.3);
+                this.targetRadius = this.baseRadius + pulse + morph1 + morph2;
+                this.radius += (this.targetRadius - this.radius) * 0.08;
 
                 // Apply velocity
                 this.x += this.vx;
@@ -391,14 +412,14 @@
                     this.vy += (dy / dist) * 0.01;
                 }
 
-                // Strong damping for very smooth flowing motion
-                this.vx *= 0.96;
-                this.vy *= 0.96;
+                // Moderate damping for more dynamic motion
+                this.vx *= 0.94;
+                this.vy *= 0.94;
 
-                // Rare gentle random impulses
-                if (Math.random() < 0.01) {
-                    this.vx += (Math.random() - 0.5) * 0.3;
-                    this.vy += (Math.random() - 0.5) * 0.3;
+                // More frequent random impulses for dynamic motion
+                if (Math.random() < 0.02) {
+                    this.vx += (Math.random() - 0.5) * 0.5;
+                    this.vy += (Math.random() - 0.5) * 0.5;
                 }
             }
         }
@@ -458,8 +479,8 @@
 
         function initBlobs() {
             blobs = [];
-            // Multiple blobs for rich layered Rorschach shapes
-            const numBlobs = 10 + Math.floor(Math.random() * 5);
+            // Many blobs for complex varied Rorschach patterns
+            const numBlobs = 12 + Math.floor(Math.random() * 6);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -478,8 +499,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // Higher threshold to create distinct shapes with selective merging
-            const threshold = 1.3;
+            // Balanced threshold for interesting organic merging and distinct shapes
+            const threshold = 1.15;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
@@ -489,13 +510,24 @@
                     for (let blob of blobs) {
                         const dx = x - blob.x;
                         const dy = y - blob.y;
-                        const distSq = dx * dx + dy * dy;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
 
-                        // Metaball formula with smooth falloff
+                        // Add irregular shape deformation using noise
+                        const angle = Math.atan2(dy, dx);
+                        const shapeNoise = noise(
+                            Math.cos(angle * blob.shapeComplexity) + blob.shapeNoiseOffset,
+                            Math.sin(angle * blob.shapeComplexity) + blob.shapeNoiseOffset + time * 0.0001
+                        );
+                        const radiusVariation = 1.0 + (shapeNoise - 0.5) * blob.irregularityAmount;
+                        const effectiveRadius = blob.radius * radiusVariation;
+
+                        const distSq = dist * dist;
+
+                        // Metaball formula with irregular radius
                         if (distSq > 0) {
-                            sum += (blob.radius * blob.radius) / distSq;
+                            sum += (effectiveRadius * effectiveRadius) / distSq;
                         } else {
-                            sum += blob.radius * 10;
+                            sum += effectiveRadius * 10;
                         }
                     }
 
