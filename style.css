@@ -17,6 +17,10 @@ body {
     margin-bottom: 2rem;
 }
 
+#canvas-container canvas {
+    display: block;
+}
+
 /* Oracle Interface - Below Canvas */
 #oracle-interface {
     max-width: 600px;

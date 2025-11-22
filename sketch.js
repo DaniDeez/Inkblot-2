@@ -13,6 +13,9 @@ let timeOffset = 0;
 let noiseScale = 0.005;
 let radiusBase = 200;
 
+// Parchment texture
+let parchmentTexture;
+
 // Click and hold
 let holdStartTime = 0;
 let isHolding = false;
@@ -39,6 +42,9 @@ function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent('canvas-container');
 
+  // Create parchment texture ONCE for performance
+  createParchmentTexture();
+
   // Initialize inkblot points
   for (let i = 0; i < numPoints; i++) {
     inkblotPoints.push({
@@ -50,6 +56,28 @@ function setup() {
 
   // Setup UI event listeners
   setupEventListeners();
+}
+
+function createParchmentTexture() {
+  parchmentTexture = createGraphics(windowWidth, windowHeight);
+  parchmentTexture.background(PARCHMENT_BASE);
+
+  // Add subtle grain texture using noise - only done ONCE
+  parchmentTexture.loadPixels();
+  for (let x = 0; x < parchmentTexture.width; x += 2) {
+    for (let y = 0; y < parchmentTexture.height; y += 2) {
+      let n = noise(x * 0.01, y * 0.01) * 15;
+      let r = 244 - n;
+      let g = 232 - n;
+      let b = 208 - n;
+      let index = (x + y * parchmentTexture.width) * 4;
+      parchmentTexture.pixels[index] = r;
+      parchmentTexture.pixels[index + 1] = g;
+      parchmentTexture.pixels[index + 2] = b;
+      parchmentTexture.pixels[index + 3] = 255;
+    }
+  }
+  parchmentTexture.updatePixels();
 }
 
 function draw() {
@@ -79,18 +107,8 @@ function draw() {
 }
 
 function drawParchmentBackground() {
-  background(PARCHMENT_BASE);
-
-  // Add subtle grain texture using noise
-  loadPixels();
-  for (let x = 0; x < width; x += 2) {
-    for (let y = 0; y < height; y += 2) {
-      let n = noise(x * 0.01, y * 0.01) * 15;
-      let c = color(244 - n, 232 - n, 208 - n);
-      set(x, y, c);
-    }
-  }
-  updatePixels();
+  // Simply draw the pre-rendered texture - MUCH faster!
+  image(parchmentTexture, 0, 0);
 }
 
 function drawInkblot() {
@@ -318,8 +336,12 @@ function saveVision() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+
+  // Recreate parchment texture at new size
+  createParchmentTexture();
+
   if (frozen && frozenImage) {
     // Redraw frozen image at new size
-    frozenImage = null; // Could implement better resizing logic
+    frozenImage = null;
   }
 }
