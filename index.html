@@ -318,9 +318,9 @@
             }
 
             reset() {
-                // Constrain inkblot to smaller center region for more overlap
-                const inkblotWidth = width * 0.25;
-                const inkblotHeight = height * 0.28;
+                // Balanced region size for dynamic movement and connection
+                const inkblotWidth = width * 0.30;
+                const inkblotHeight = height * 0.32;
                 const centerX = width / 2;
                 const centerY = height / 2;
 
@@ -328,17 +328,17 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Larger varied blob sizes for better merging and patterns
+                // Smaller blob sizes for dynamic connecting/disconnecting
                 const sizeType = Math.random();
-                if (sizeType < 0.3) {
+                if (sizeType < 0.4) {
                     // Small connecting blobs
-                    this.baseRadius = 25 + Math.random() * 20;
-                } else if (sizeType < 0.7) {
-                    // Medium merging shapes
-                    this.baseRadius = 45 + Math.random() * 30;
+                    this.baseRadius = 20 + Math.random() * 15;
+                } else if (sizeType < 0.8) {
+                    // Medium dynamic blobs
+                    this.baseRadius = 35 + Math.random() * 20;
                 } else {
-                    // Large central blobs
-                    this.baseRadius = 75 + Math.random() * 35;
+                    // Occasional larger blobs
+                    this.baseRadius = 55 + Math.random() * 25;
                 }
 
                 this.radius = this.baseRadius;
@@ -571,8 +571,8 @@
             imageData.data.set(lowResParchment.data);
             const data = imageData.data;
 
-            // Lower threshold for connected merged patterns (like real Rorschach)
-            const threshold = 0.7;
+            // Balanced threshold for dynamic connecting/disconnecting
+            const threshold = 0.95;
 
             // Calculate metaball values and draw black ink on top (at low res)
             for (let y = 0; y < renderHeight; y++) {
