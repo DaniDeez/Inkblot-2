@@ -321,17 +321,17 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Moderate blob sizes to show irregular features clearly
+                // Smaller blob sizes for distinct separated shapes
                 const sizeType = Math.random();
-                if (sizeType < 0.3) {
+                if (sizeType < 0.4) {
                     // Small organic blobs
-                    this.baseRadius = 25 + Math.random() * 20;
-                } else if (sizeType < 0.7) {
+                    this.baseRadius = 20 + Math.random() * 15;
+                } else if (sizeType < 0.8) {
                     // Medium flowing shapes
-                    this.baseRadius = 45 + Math.random() * 25;
+                    this.baseRadius = 35 + Math.random() * 20;
                 } else {
-                    // Larger central blobs
-                    this.baseRadius = 70 + Math.random() * 30;
+                    // Occasional larger blobs
+                    this.baseRadius = 55 + Math.random() * 20;
                 }
 
                 this.radius = this.baseRadius;
@@ -358,20 +358,17 @@
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Complex irregular shape parameters for true Rorschach patterns
+                // Organic shape parameters - balanced for smooth performance
                 this.shapeNoiseOffset = Math.random() * 1000;
                 this.shapeNoiseOffset2 = Math.random() * 1000 + 500;
-                this.shapeNoiseOffset3 = Math.random() * 1000 + 1000;
 
-                // High complexity for organic irregular edges
-                this.shapeComplexity = 8 + Math.floor(Math.random() * 8); // 8-15 protrusions/indentations
-                this.shapeComplexity2 = 12 + Math.floor(Math.random() * 10); // Secondary detail layer
-                this.shapeComplexity3 = 20 + Math.floor(Math.random() * 15); // Fine organic texture
+                // Moderate complexity for smooth organic edges
+                this.shapeComplexity = 6 + Math.floor(Math.random() * 5); // 6-10 organic features
+                this.shapeComplexity2 = 10 + Math.floor(Math.random() * 6); // Secondary detail layer
 
-                // Varied irregularity for complex organic shapes
-                this.irregularityAmount = 0.6 + Math.random() * 0.8; // 60-140% variation for dramatic organic features
-                this.irregularityAmount2 = 0.3 + Math.random() * 0.4; // Secondary variation layer
-                this.irregularityAmount3 = 0.15 + Math.random() * 0.25; // Fine detail layer
+                // Moderate irregularity for smooth organic shapes
+                this.irregularityAmount = 0.4 + Math.random() * 0.4; // 40-80% variation
+                this.irregularityAmount2 = 0.2 + Math.random() * 0.3; // Secondary variation
 
                 // Varied morphing with 2-3 second cycles
                 this.phase = Math.random() * Math.PI * 2;
@@ -527,9 +524,8 @@
 
         function initBlobs() {
             blobs = [];
-            // Varied number of blobs for complex Rorschach compositions
-            // More blobs = more merging and organic complexity
-            const numBlobs = 10 + Math.floor(Math.random() * 8);
+            // Moderate number of blobs for distinct shapes and good performance
+            const numBlobs = 5 + Math.floor(Math.random() * 4);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -548,8 +544,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // Balanced threshold for smooth visible shapes
-            const threshold = 0.75;
+            // Higher threshold for distinct separated blobs
+            const threshold = 1.2;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
@@ -561,49 +557,35 @@
                         const dy = y - blob.y;
                         const dist = Math.sqrt(dx * dx + dy * dy);
 
-                        // Complex multi-layer organic shape deformation for Rorschach patterns
+                        // Organic shape deformation - optimized for performance
                         const angle = Math.atan2(dy, dx);
 
-                        // Layer 1: Primary large protrusions and indentations
+                        // Layer 1: Primary organic protrusions
                         const shape1X = Math.cos(angle * blob.shapeComplexity) * 0.1;
                         const shape1Y = Math.sin(angle * blob.shapeComplexity) * 0.1;
                         const shapeNoise1 = organicNoise(
                             shape1X + blob.shapeNoiseOffset,
-                            shape1Y + blob.shapeNoiseOffset + time * 0.00005
+                            shape1Y + blob.shapeNoiseOffset + time * 0.00006
                         );
 
-                        // Layer 2: Secondary medium-scale organic features
-                        const shape2X = Math.cos(angle * blob.shapeComplexity2) * 0.15;
-                        const shape2Y = Math.sin(angle * blob.shapeComplexity2) * 0.15;
+                        // Layer 2: Secondary organic detail
+                        const shape2X = Math.cos(angle * blob.shapeComplexity2) * 0.12;
+                        const shape2Y = Math.sin(angle * blob.shapeComplexity2) * 0.12;
                         const shapeNoise2 = organicNoise(
                             shape2X + blob.shapeNoiseOffset2,
-                            shape2Y + blob.shapeNoiseOffset2 + time * 0.00008,
+                            shape2Y + blob.shapeNoiseOffset2 + time * 0.00009,
                             200
                         );
 
-                        // Layer 3: Fine organic texture detail
-                        const shape3X = Math.cos(angle * blob.shapeComplexity3) * 0.2;
-                        const shape3Y = Math.sin(angle * blob.shapeComplexity3) * 0.2;
-                        const shapeNoise3 = organicNoise(
-                            shape3X + blob.shapeNoiseOffset3,
-                            shape3Y + blob.shapeNoiseOffset3 + time * 0.00012,
-                            400
-                        );
-
-                        // Add asymmetric variation for more organic natural look
-                        const asymmetry = Math.sin(angle * 3.7 + blob.shapeNoiseOffset) * 0.5 + 0.5;
-
-                        // Combine all layers with weighted influence
+                        // Combine layers for smooth organic variation
                         const layer1 = (shapeNoise1 - 0.5) * blob.irregularityAmount;
                         const layer2 = (shapeNoise2 - 0.5) * blob.irregularityAmount2;
-                        const layer3 = (shapeNoise3 - 0.5) * blob.irregularityAmount3;
-                        const asymmetryFactor = (asymmetry - 0.5) * 0.3;
 
-                        const totalVariation = layer1 + layer2 + layer3 + asymmetryFactor;
-                        const radiusVariation = 1.0 + totalVariation * 2.0;
+                        const totalVariation = layer1 + layer2;
+                        const radiusVariation = 1.0 + totalVariation * 1.5;
 
-                        // Clamp to reasonable bounds while allowing dramatic features
-                        const effectiveRadius = Math.max(blob.radius * 0.3, Math.min(blob.radius * 2.0, blob.radius * radiusVariation));
+                        // Clamp to reasonable bounds
+                        const effectiveRadius = Math.max(blob.radius * 0.5, Math.min(blob.radius * 1.5, blob.radius * radiusVariation));
 
                         const distSq = dist * dist;
 
@@ -618,12 +600,13 @@
                     const index = (y * width + x) * 4;
 
                     if (sum > threshold) {
-                        // Smooth edge anti-aliasing
+                        // Smooth edge anti-aliasing for organic look
                         let alpha = 255;
 
-                        if (sum < threshold * 1.5) {
-                            const edgeFactor = (sum - threshold) / (threshold * 0.5);
-                            alpha = Math.min(255, edgeFactor * 255);
+                        const edgeThickness = 0.3;
+                        if (sum < threshold * (1 + edgeThickness)) {
+                            const edgeFactor = (sum - threshold) / (threshold * edgeThickness);
+                            alpha = Math.min(255, Math.max(0, edgeFactor * 255));
                         }
 
                         // Draw black ink over parchment
