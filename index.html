@@ -283,17 +283,17 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Smaller varied blob sizes for distinct Rorschach shapes
+                // Moderate blob sizes to show irregular features clearly
                 const sizeType = Math.random();
-                if (sizeType < 0.4) {
+                if (sizeType < 0.3) {
                     // Small organic blobs
-                    this.baseRadius = 18 + Math.random() * 22;
-                } else if (sizeType < 0.75) {
+                    this.baseRadius = 25 + Math.random() * 20;
+                } else if (sizeType < 0.7) {
                     // Medium flowing shapes
-                    this.baseRadius = 40 + Math.random() * 25;
+                    this.baseRadius = 45 + Math.random() * 25;
                 } else {
                     // Larger central blobs
-                    this.baseRadius = 65 + Math.random() * 30;
+                    this.baseRadius = 70 + Math.random() * 30;
                 }
 
                 this.radius = this.baseRadius;
@@ -320,10 +320,10 @@
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Extreme irregular shape deformation for true Rorschach edges
+                // EXTREME irregular shape deformation for wildly organic Rorschach edges
                 this.shapeNoiseOffset = Math.random() * 1000;
-                this.shapeComplexity = 4 + Math.floor(Math.random() * 5); // 4-8 irregular features
-                this.irregularityAmount = 0.6 + Math.random() * 0.6; // 60-120% variation for very irregular shapes
+                this.shapeComplexity = 5 + Math.floor(Math.random() * 4); // 5-8 irregular features
+                this.irregularityAmount = 1.0 + Math.random() * 1.0; // 100-200% variation for dramatic tentacles
 
                 // Varied morphing with 2-3 second cycles
                 this.phase = Math.random() * Math.PI * 2;
@@ -479,8 +479,8 @@
 
         function initBlobs() {
             blobs = [];
-            // Fewer blobs for distinct irregular Rorschach shapes
-            const numBlobs = 8 + Math.floor(Math.random() * 4);
+            // Very few blobs for clear distinct irregular Rorschach shapes
+            const numBlobs = 5 + Math.floor(Math.random() * 3);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -499,8 +499,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // Higher threshold for distinct irregular shapes with minimal merging
-            const threshold = 1.4;
+            // Lower threshold to show irregular shapes while preventing over-merging
+            const threshold = 0.95;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
@@ -527,8 +527,8 @@
 
                         // Combine noise for rich organic variation
                         const combinedNoise = shapeNoise1 * 0.7 + shapeNoise2 * 0.3;
-                        const radiusVariation = 1.0 + (combinedNoise - 0.5) * blob.irregularityAmount * 2.0;
-                        const effectiveRadius = Math.max(blob.radius * 0.3, blob.radius * radiusVariation);
+                        const radiusVariation = 1.0 + (combinedNoise - 0.5) * blob.irregularityAmount * 2.5;
+                        const effectiveRadius = Math.max(blob.radius * 0.2, blob.radius * radiusVariation);
 
                         const distSq = dist * dist;
 
