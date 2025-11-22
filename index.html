@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Void Mirror – Inkblot Oracle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- New Inkblot Button (top right) -->
+        <button id="newInkblotBtn" class="new-inkblot-btn">New Inkblot</button>
+
+        <!-- Canvas for inkblot rendering -->
+        <canvas id="inkblotCanvas"></canvas>
+
+        <!-- Star orbs overlay -->
+        <canvas id="starsCanvas"></canvas>
+
+        <!-- Oracle Prompt (shown when inkblot is frozen) -->
+        <div id="oraclePrompt" class="oracle-prompt hidden">
+            <div class="prompt-content">
+                <h2 class="prompt-question">🌈 What do you see?</h2>
+                <input
+                    type="text"
+                    id="visionInput"
+                    class="vision-input"
+                    placeholder="Type what you perceive..."
+                    maxlength="100"
+                />
+                <button id="submitVision" class="submit-btn">Reveal</button>
+            </div>
+        </div>
+
+        <!-- Oracle Reading (shown after submission) -->
+        <div id="oracleReading" class="oracle-reading hidden">
+            <div class="reading-content">
+                <button id="closeReading" class="close-btn">✕</button>
+                <div class="reading-section">
+                    <h3>Color Signature</h3>
+                    <div id="colorReading" class="color-reading"></div>
+                </div>
+                <div class="reading-section">
+                    <h3>Symbolic Resonance</h3>
+                    <div id="symbolicReading" class="symbolic-reading"></div>
+                </div>
+                <button id="continueBtn" class="continue-btn">Continue Exploring</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
