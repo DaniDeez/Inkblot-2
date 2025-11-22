@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Living Mirror of Light</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <!-- p5.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header Text (Above Canvas) -->
+  <header>
+    <h1>The Living Mirror of Light</h1>
+    <p>Every ripple is a memory—what reflection has chosen to return?</p>
+  </header>
+
+  <!-- Canvas Container (p5.js will inject here) -->
+  <div id="canvas-container"></div>
+
+  <!-- Phase 2 UI (Hidden initially, appears beneath canvas) -->
+  <div id="phase2-container" class="hidden">
+    <div class="prompt-section">
+      <p class="reflection-prompt">What do you see beneath the surface?</p>
+
+      <div class="input-section">
+        <input type="text" id="user-input" placeholder="Speak your vision..." maxlength="200">
+        <button id="submit-btn">Reveal</button>
+      </div>
+
+      <div id="oracle-message" class="oracle-message hidden"></div>
+
+      <button id="save-btn" class="save-btn hidden">💾 Save This Vision</button>
+    </div>
+  </div>
+
+  <!-- Instructions (subtle, bottom corner) -->
+  <div class="instructions">
+    Click and hold for 2 seconds to freeze the inkblot
+  </div>
+
+  <!-- JavaScript -->
+  <script src="sketch.js"></script>
+</body>
+</html>
