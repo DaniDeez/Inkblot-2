@@ -540,21 +540,34 @@
         }
 
         function drawMetaball(time) {
-            // Get current canvas content (which should be the parchment)
-            const imageData = ctx.getImageData(0, 0, width, height);
+            // Render at lower resolution for massive performance boost (4x faster)
+            const scale = 0.5; // Render at half resolution
+            const renderWidth = Math.floor(width * scale);
+            const renderHeight = Math.floor(height * scale);
+
+            // Create low-res canvas for metaball rendering
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = renderWidth;
+            tempCanvas.height = renderHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // Get current canvas content (parchment) at low res
+            tempCtx.drawImage(canvas, 0, 0, renderWidth, renderHeight);
+            const imageData = tempCtx.getImageData(0, 0, renderWidth, renderHeight);
             const data = imageData.data;
 
             // Higher threshold for distinct separated blobs
             const threshold = 1.2;
 
-            // Calculate metaball values and draw black ink on top
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width / 2; x++) {
+            // Calculate metaball values and draw black ink on top (at low res)
+            for (let y = 0; y < renderHeight; y++) {
+                for (let x = 0; x < renderWidth / 2; x++) {
                     let sum = 0;
 
                     for (let blob of blobs) {
-                        const dx = x - blob.x;
-                        const dy = y - blob.y;
+                        // Scale blob positions to match render resolution
+                        const dx = x - (blob.x * scale);
+                        const dy = y - (blob.y * scale);
                         const dist = Math.sqrt(dx * dx + dy * dy);
 
                         // Organic shape deformation - optimized for performance
@@ -584,8 +597,9 @@
                         const totalVariation = layer1 + layer2;
                         const radiusVariation = 1.0 + totalVariation * 1.5;
 
-                        // Clamp to reasonable bounds
-                        const effectiveRadius = Math.max(blob.radius * 0.5, Math.min(blob.radius * 1.5, blob.radius * radiusVariation));
+                        // Clamp to reasonable bounds (scale radius too)
+                        const scaledRadius = blob.radius * scale;
+                        const effectiveRadius = Math.max(scaledRadius * 0.5, Math.min(scaledRadius * 1.5, scaledRadius * radiusVariation));
 
                         const distSq = dist * dist;
 
@@ -597,7 +611,7 @@
                         }
                     }
 
-                    const index = (y * width + x) * 4;
+                    const index = (y * renderWidth + x) * 4;
 
                     if (sum > threshold) {
                         // Smooth edge anti-aliasing for organic look
@@ -618,12 +632,12 @@
                 }
             }
 
-            // Mirror to create symmetry
-            for (let y = 0; y < height; y++) {
-                for (let x = Math.floor(width / 2); x < width; x++) {
-                    const mirrorX = width - x - 1;
-                    const sourceIndex = (y * width + mirrorX) * 4;
-                    const targetIndex = (y * width + x) * 4;
+            // Mirror to create symmetry (at low res)
+            for (let y = 0; y < renderHeight; y++) {
+                for (let x = Math.floor(renderWidth / 2); x < renderWidth; x++) {
+                    const mirrorX = renderWidth - x - 1;
+                    const sourceIndex = (y * renderWidth + mirrorX) * 4;
+                    const targetIndex = (y * renderWidth + x) * 4;
 
                     // Only copy if there's actual ink at the source
                     if (data[sourceIndex + 3] > 0 && data[sourceIndex] < 50) {
@@ -635,7 +649,13 @@
                 }
             }
 
-            ctx.putImageData(imageData, 0, 0);
+            // Put low-res image data back to temp canvas
+            tempCtx.putImageData(imageData, 0, 0);
+
+            // Scale up to full resolution with smooth interpolation
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(tempCanvas, 0, 0, renderWidth, renderHeight, 0, 0, width, height);
         }
 
         function drawParchmentBackground() {
