@@ -51,13 +51,14 @@ function initializeBlobs() {
 
   for (let i = 0; i < numBlobs; i++) {
     inkblotBlobs.push({
-      y: random(-baseSize * 0.3, baseSize * 0.3),
+      startY: random(-baseSize * 0.3, baseSize * 0.3),
       x: random(baseSize * 0.05, baseSize * 0.35), // Only left side
       baseRadius: random(baseSize * 0.08, baseSize * 0.2),
       noiseOffsetX: random(1000),
       noiseOffsetY: random(1000),
-      tentacleCount: floor(random(3, 8)),
-      wildness: random(0.5, 2.5) // How irregular the blob is
+      noiseOffsetZ: random(1000),
+      verticalSpeed: random(0.3, 0.8), // For lava lamp vertical drift
+      stretchFactor: random(0.8, 1.5) // How much it stretches vertically
     });
   }
 }
@@ -86,8 +87,12 @@ function createParchmentTexture() {
 }
 
 function draw() {
+  // Clear and reset everything
+  clear();
+  background(PARCHMENT_BASE);
+
   if (!frozen) {
-    // Draw parchment background
+    // Draw parchment background texture
     drawParchmentBackground();
 
     // Draw evolving inkblot
@@ -96,24 +101,34 @@ function draw() {
     // Draw corner guardian orbs
     drawGuardianOrbs();
 
-    // Update time for animation
-    timeOffset += 0.004;
+    // Update time for animation - slower for lava lamp effect
+    timeOffset += 0.002;
   } else {
     // Show frozen image
     if (frozenImage) {
-      image(frozenImage, 0, 0);
+      image(frozenImage, 0, 0, width, height);
     }
   }
 }
 
 function drawParchmentBackground() {
-  // Simply draw the pre-rendered texture - MUCH faster!
-  image(parchmentTexture, 0, 0);
+  // Draw the pre-rendered texture covering the full canvas
+  if (parchmentTexture) {
+    push();
+    imageMode(CORNER);
+    image(parchmentTexture, 0, 0, width, height);
+    pop();
+  }
 }
 
 function drawInkblot() {
   push();
   translate(width / 2, height / 2);
+
+  // Reset any shadows first
+  drawingContext.shadowBlur = 0;
+  drawingContext.shadowOffsetX = 0;
+  drawingContext.shadowOffsetY = 0;
 
   // Enable glow effect
   drawingContext.shadowBlur = 20;
@@ -124,70 +139,74 @@ function drawInkblot() {
 
   // Draw each blob with vertical symmetry
   for (let blob of inkblotBlobs) {
+    // Calculate lava lamp vertical drift
+    let driftY = sin(timeOffset * blob.verticalSpeed + blob.noiseOffsetZ) * 80;
+    let currentY = blob.startY + driftY;
+
     // Draw left side blob
-    drawSingleBlob(blob.x, blob.y, blob);
+    drawLavaLampBlob(blob.x, currentY, blob);
 
     // Draw mirrored right side blob
-    drawSingleBlob(-blob.x, blob.y, blob);
+    drawLavaLampBlob(-blob.x, currentY, blob);
   }
 
   // Reset shadow
   drawingContext.shadowBlur = 0;
+  drawingContext.shadowOffsetX = 0;
+  drawingContext.shadowOffsetY = 0;
 
   pop();
 }
 
-function drawSingleBlob(centerX, centerY, blob) {
+function drawLavaLampBlob(centerX, centerY, blob) {
   beginShape();
 
-  let numPoints = 120;
+  let numPoints = 180; // More points for smoother curves
+
+  // Lava lamp blobs stretch and squish
+  let squishFactor = sin(timeOffset * 1.2 + blob.noiseOffsetZ) * 0.3 + 1;
 
   for (let i = 0; i <= numPoints; i++) {
     let angle = (TWO_PI / numPoints) * i;
 
-    // Multiple layers of noise for complex organic shapes
+    // Smooth flowing noise - slower, more fluid
     let noise1 = noise(
-      centerX * 0.01 + cos(angle) * 2 + timeOffset + blob.noiseOffsetX,
-      centerY * 0.01 + sin(angle) * 2 + timeOffset + blob.noiseOffsetY
+      centerX * 0.005 + cos(angle) * 1.5 + timeOffset * 0.5 + blob.noiseOffsetX,
+      centerY * 0.005 + sin(angle) * 1.5 + timeOffset * 0.5 + blob.noiseOffsetY
     );
 
     let noise2 = noise(
-      centerX * 0.01 + cos(angle * 3) * 1.5 + timeOffset * 1.3 + blob.noiseOffsetX,
-      centerY * 0.01 + sin(angle * 3) * 1.5 + timeOffset * 1.3 + blob.noiseOffsetY
+      centerX * 0.003 + cos(angle * 2) + timeOffset * 0.3 + blob.noiseOffsetX,
+      centerY * 0.003 + sin(angle * 2) + timeOffset * 0.3 + blob.noiseOffsetY
     );
 
     let noise3 = noise(
-      centerX * 0.005 + cos(angle * 0.5) + timeOffset * 0.7 + blob.noiseOffsetX,
-      centerY * 0.005 + sin(angle * 0.5) + timeOffset * 0.7 + blob.noiseOffsetY
+      cos(angle * 0.5) * 2 + timeOffset * 0.6 + blob.noiseOffsetX,
+      sin(angle * 0.5) * 2 + timeOffset * 0.6 + blob.noiseOffsetY
     );
 
-    // Create tentacles and lobes with sine variations
-    let tentacleEffect = 0;
-    for (let t = 0; t < blob.tentacleCount; t++) {
-      let tentacleAngle = (TWO_PI / blob.tentacleCount) * t;
-      let tentacleDist = abs(angle - tentacleAngle);
-      if (tentacleDist > PI) tentacleDist = TWO_PI - tentacleDist;
+    // Combine noise for smooth organic flow
+    let radiusVariation = (noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2);
 
-      // Sharp protrusions for tentacles
-      tentacleEffect += (1 - tentacleDist / PI) * sin(timeOffset * 3 + t) * 0.4;
-    }
+    // Gentle undulation like lava lamp
+    let flow = sin(angle * 3 + timeOffset * 2) * 0.15;
+    radiusVariation += flow;
 
-    // Combine all effects for wildly irregular organic shapes
-    let radiusVariation = (noise1 * 0.4 + noise2 * 0.3 + noise3 * 0.3);
-    radiusVariation += tentacleEffect * blob.wildness;
+    // Add subtle lobes (not sharp tentacles)
+    let lobeEffect = sin(angle * 4 - timeOffset * 1.5) * 0.2 * noise1;
+    radiusVariation += lobeEffect;
 
-    // Add edge rippling and bulging
-    let edgeRipple = sin(angle * 7 + timeOffset * 4) * 0.15;
-    let edgeBulge = cos(angle * 4 - timeOffset * 2.5) * 0.2;
-
-    radiusVariation += (edgeRipple + edgeBulge) * noise1;
-
-    // Clamp to create negative space (some blobs shrink/disappear at times)
-    radiusVariation = constrain(radiusVariation, 0.2, 1.8);
+    // Keep blobs substantial - lava lamps have volume
+    radiusVariation = constrain(radiusVariation, 0.6, 1.4);
 
     let r = blob.baseRadius * radiusVariation;
-    let x = centerX + r * cos(angle);
-    let y = centerY + r * sin(angle);
+
+    // Apply stretch/squish based on vertical position
+    let xRadius = r / squishFactor;
+    let yRadius = r * squishFactor * blob.stretchFactor;
+
+    let x = centerX + xRadius * cos(angle);
+    let y = centerY + yRadius * sin(angle);
 
     curveVertex(x, y);
   }
@@ -209,6 +228,11 @@ function drawGuardianOrbs() {
   for (let corner of corners) {
     push();
 
+    // Reset any previous shadow
+    drawingContext.shadowBlur = 0;
+    drawingContext.shadowOffsetX = 0;
+    drawingContext.shadowOffsetY = 0;
+
     // Glow effect
     drawingContext.shadowBlur = pulse;
     drawingContext.shadowColor = ORB_COLOR;
@@ -216,12 +240,13 @@ function drawGuardianOrbs() {
     // Draw orb
     fill(255, 248, 220, 200);
     noStroke();
-    circle(corner.x, corner.y, orbSize);
+    ellipse(corner.x, corner.y, orbSize, orbSize);
 
     // Inner glow
     fill(255, 215, 0, 100);
-    circle(corner.x, corner.y, orbSize * 0.6);
+    ellipse(corner.x, corner.y, orbSize * 0.6, orbSize * 0.6);
 
+    // Reset shadow
     drawingContext.shadowBlur = 0;
     pop();
   }
