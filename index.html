@@ -733,8 +733,6 @@
         }
 
         function animate(time) {
-            if (isFrozen) return;
-
             // Draw parchment background (cached)
             if (!parchmentBackground) {
                 drawParchmentBackground();
@@ -777,9 +775,13 @@
         }
 
         function generateNewInkblot() {
-            if (isFrozen) {
-                unfreezeAnimation();
-            }
+            // Hide interpretation panel
+            interpretationPanel.classList.remove('visible');
+            readingResult.classList.remove('visible');
+            visionInput.value = '';
+            readingResult.innerHTML = '';
+
+            // Generate new blobs
             initBlobs();
             initStars();
             parchmentBackground = null; // Reset parchment cache for new inkblot
@@ -961,9 +963,9 @@
         }
 
         canvas.addEventListener('click', () => {
-            if (!isFrozen) {
-                freezeAnimation();
-            }
+            // Show interpretation panel without freezing animation
+            interpretationPanel.classList.add('visible');
+            visionInput.focus();
         });
 
         newInkblotBtn.addEventListener('click', (e) => {
@@ -989,9 +991,7 @@
 
         window.addEventListener('resize', () => {
             resizeCanvas();
-            if (isFrozen && frozenImageData) {
-                ctx.putImageData(frozenImageData, 0, 0);
-            }
+            parchmentBackground = null; // Reset parchment on resize
         });
 
         resizeCanvas();
