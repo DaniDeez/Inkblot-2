@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Psycheflux Oracle Inkblot Simulator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <!-- Phase 2 Interface - Below Canvas -->
+    <div id="oracle-interface" class="hidden">
+        <div class="prompt-container">
+            <h2 class="oracle-prompt">What do you see?</h2>
+            <input type="text" id="vision-input" class="vision-input" placeholder="Speak your vision...">
+            <button id="submit-vision" class="oracle-button">Submit</button>
+        </div>
+
+        <div id="oracle-message" class="oracle-message hidden"></div>
+
+        <button id="save-vision" class="oracle-button save-button hidden">📜 Save This Vision</button>
+    </div>
+
+    <script src="sketch.js"></script>
+</body>
+</html>
