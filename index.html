@@ -328,37 +328,15 @@
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Smaller blob sizes for dynamic connecting/disconnecting
-                const sizeType = Math.random();
-                if (sizeType < 0.4) {
-                    // Small connecting blobs
-                    this.baseRadius = 20 + Math.random() * 15;
-                } else if (sizeType < 0.8) {
-                    // Medium dynamic blobs
-                    this.baseRadius = 35 + Math.random() * 20;
-                } else {
-                    // Occasional larger blobs
-                    this.baseRadius = 55 + Math.random() * 25;
-                }
+                // Small consistent blob sizes for clean separation
+                this.baseRadius = 30 + Math.random() * 25; // 30-55px uniform size
 
                 this.radius = this.baseRadius;
                 this.targetRadius = this.baseRadius;
 
-                // Increased velocity for visible dynamic motion
-                const speedType = Math.random();
-                if (speedType < 0.3) {
-                    // Slow drifters
-                    this.vx = (Math.random() - 0.5) * 0.8;
-                    this.vy = (Math.random() - 0.5) * 0.8;
-                } else if (speedType < 0.7) {
-                    // Medium movers
-                    this.vx = (Math.random() - 0.5) * 1.2;
-                    this.vy = (Math.random() - 0.5) * 1.2;
-                } else {
-                    // Faster blobs for more dynamics
-                    this.vx = (Math.random() - 0.5) * 1.6;
-                    this.vy = (Math.random() - 0.5) * 1.6;
-                }
+                // Fast velocity for smooth dynamic connecting/disconnecting
+                this.vx = (Math.random() - 0.5) * 2.5;
+                this.vy = (Math.random() - 0.5) * 2.5;
 
                 // Organic motion parameters
                 this.noiseOffsetX = Math.random() * 1000;
@@ -531,8 +509,8 @@
 
         function initBlobs() {
             blobs = [];
-            // More blobs for complex interconnected Rorschach patterns
-            const numBlobs = 8 + Math.floor(Math.random() * 6);
+            // Small number of blobs for clean dynamic connecting/disconnecting
+            const numBlobs = 4 + Math.floor(Math.random() * 3);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -571,8 +549,8 @@
             imageData.data.set(lowResParchment.data);
             const data = imageData.data;
 
-            // Balanced threshold for dynamic connecting/disconnecting
-            const threshold = 0.95;
+            // Higher threshold for cleaner separation with occasional merging
+            const threshold = 1.1;
 
             // Calculate metaball values and draw black ink on top (at low res)
             for (let y = 0; y < renderHeight; y++) {
