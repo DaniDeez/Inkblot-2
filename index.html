@@ -251,8 +251,6 @@
         let blobs = [];
         let stars = [];
         let animationId = null;
-        let isFrozen = false;
-        let frozenImageData = null;
         let parchmentBackground = null; // Cache for antique parchment texture
 
         function resizeCanvas() {
@@ -750,28 +748,6 @@
             });
 
             animationId = requestAnimationFrame(animate);
-        }
-
-        function freezeAnimation() {
-            if (isFrozen) return;
-
-            isFrozen = true;
-            frozenImageData = ctx.getImageData(0, 0, width, height);
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
-
-            interpretationPanel.classList.add('visible');
-            visionInput.focus();
-        }
-
-        function unfreezeAnimation() {
-            isFrozen = false;
-            interpretationPanel.classList.remove('visible');
-            readingResult.classList.remove('visible');
-            visionInput.value = '';
-            readingResult.innerHTML = '';
-            requestAnimationFrame(animate);
         }
 
         function generateNewInkblot() {
