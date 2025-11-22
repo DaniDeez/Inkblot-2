@@ -318,27 +318,27 @@
             }
 
             reset() {
-                // Constrain inkblot to center 35% of screen
-                const inkblotWidth = width * 0.35;
-                const inkblotHeight = height * 0.35;
+                // Constrain inkblot to smaller center region for more overlap
+                const inkblotWidth = width * 0.25;
+                const inkblotHeight = height * 0.28;
                 const centerX = width / 2;
                 const centerY = height / 2;
 
-                // Position blobs within the center region (half goes to left side for mirroring)
+                // Position blobs closer together within center region
                 this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
                 this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
 
-                // Smaller blob sizes for distinct separated shapes
+                // Larger varied blob sizes for better merging and patterns
                 const sizeType = Math.random();
-                if (sizeType < 0.4) {
-                    // Small organic blobs
-                    this.baseRadius = 20 + Math.random() * 15;
-                } else if (sizeType < 0.8) {
-                    // Medium flowing shapes
-                    this.baseRadius = 35 + Math.random() * 20;
+                if (sizeType < 0.3) {
+                    // Small connecting blobs
+                    this.baseRadius = 25 + Math.random() * 20;
+                } else if (sizeType < 0.7) {
+                    // Medium merging shapes
+                    this.baseRadius = 45 + Math.random() * 30;
                 } else {
-                    // Occasional larger blobs
-                    this.baseRadius = 55 + Math.random() * 20;
+                    // Large central blobs
+                    this.baseRadius = 75 + Math.random() * 35;
                 }
 
                 this.radius = this.baseRadius;
@@ -365,17 +365,17 @@
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Organic shape parameters - smooth blob-like appearance
+                // Organic shape parameters - complex for varied Rorschach patterns
                 this.shapeNoiseOffset = Math.random() * 1000;
                 this.shapeNoiseOffset2 = Math.random() * 1000 + 500;
 
-                // Lower complexity for smoother, more rounded blobs
-                this.shapeComplexity = 3 + Math.floor(Math.random() * 3); // 3-5 gentle organic features
-                this.shapeComplexity2 = 5 + Math.floor(Math.random() * 3); // Secondary subtle detail
+                // Moderate complexity for interesting merged patterns
+                this.shapeComplexity = 4 + Math.floor(Math.random() * 4); // 4-7 organic features
+                this.shapeComplexity2 = 7 + Math.floor(Math.random() * 5); // Secondary detail layer
 
-                // Gentle irregularity for smooth blob-like shapes
-                this.irregularityAmount = 0.15 + Math.random() * 0.2; // 15-35% variation for gentle curves
-                this.irregularityAmount2 = 0.1 + Math.random() * 0.15; // Subtle secondary variation
+                // Moderate irregularity for varied interesting patterns
+                this.irregularityAmount = 0.25 + Math.random() * 0.3; // 25-55% variation for character
+                this.irregularityAmount2 = 0.15 + Math.random() * 0.2; // Secondary organic variation
 
                 // Varied morphing with 2-3 second cycles
                 this.phase = Math.random() * Math.PI * 2;
@@ -531,8 +531,8 @@
 
         function initBlobs() {
             blobs = [];
-            // Moderate number of blobs for distinct shapes and good performance
-            const numBlobs = 5 + Math.floor(Math.random() * 4);
+            // More blobs for complex interconnected Rorschach patterns
+            const numBlobs = 8 + Math.floor(Math.random() * 6);
             for (let i = 0; i < numBlobs; i++) {
                 blobs.push(new Blob());
             }
@@ -571,8 +571,8 @@
             imageData.data.set(lowResParchment.data);
             const data = imageData.data;
 
-            // Higher threshold for distinct separated blobs
-            const threshold = 1.2;
+            // Lower threshold for connected merged patterns (like real Rorschach)
+            const threshold = 0.7;
 
             // Calculate metaball values and draw black ink on top (at low res)
             for (let y = 0; y < renderHeight; y++) {
