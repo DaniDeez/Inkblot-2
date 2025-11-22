@@ -1,0 +1,122 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+}
+
+.new-inkblot-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #fff;
+    color: #667eea;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.new-inkblot-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.new-inkblot-btn:active {
+    transform: translateY(0);
+}
+
+.inkblot-container {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#inkblotCanvas {
+    cursor: pointer;
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.input-section {
+    margin-top: 30px;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+.input-section.hidden {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+}
+
+.question {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+#userInput {
+    width: 100%;
+    max-width: 600px;
+    min-height: 120px;
+    padding: 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: box-shadow 0.3s ease;
+}
+
+#userInput:focus {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .inkblot-container {
+        padding: 20px;
+    }
+
+    .new-inkblot-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .question {
+        font-size: 20px;
+    }
+}
