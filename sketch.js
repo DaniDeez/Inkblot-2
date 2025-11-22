@@ -6,26 +6,19 @@ let phase = 1; // 1 = evolving inkblot, 2 = oracle reflection
 let frozen = false;
 let frozenImage = null;
 
-// Inkblot parameters
-let inkblotPoints = [];
-let numPoints = 180;
+// Inkblot parameters - True Rorschach with multiple blobs
+let inkblotBlobs = [];
+let numBlobs = 5;
 let timeOffset = 0;
-let noiseScale = 0.005;
-let radiusBase = 200;
 
 // Parchment texture
 let parchmentTexture;
-
-// Click and hold
-let holdStartTime = 0;
-let isHolding = false;
-const HOLD_DURATION = 2000; // 2 seconds
 
 // Colors
 const INK_COLOR = '#013220';
 const GLOW_COLOR = 'rgba(139, 195, 74, 0.6)'; // golden-green
 const ORB_COLOR = '#FFD700';
-const PARCHMENT_BASE = '#f4e8d0';
+const PARCHMENT_BASE = '#5c4a3a'; // Chocolate brown parchment
 
 // Symbol dictionary
 const symbolReadings = {
@@ -45,17 +38,28 @@ function setup() {
   // Create parchment texture ONCE for performance
   createParchmentTexture();
 
-  // Initialize inkblot points
-  for (let i = 0; i < numPoints; i++) {
-    inkblotPoints.push({
-      angle: (TWO_PI / numPoints) * i,
-      noiseOffsetX: random(1000),
-      noiseOffsetY: random(1000)
-    });
-  }
+  // Initialize blob centers for true Rorschach patterns
+  initializeBlobs();
 
   // Setup UI event listeners
   setupEventListeners();
+}
+
+function initializeBlobs() {
+  inkblotBlobs = [];
+  let baseSize = min(width, height);
+
+  for (let i = 0; i < numBlobs; i++) {
+    inkblotBlobs.push({
+      y: random(-baseSize * 0.3, baseSize * 0.3),
+      x: random(baseSize * 0.05, baseSize * 0.35), // Only left side
+      baseRadius: random(baseSize * 0.08, baseSize * 0.2),
+      noiseOffsetX: random(1000),
+      noiseOffsetY: random(1000),
+      tentacleCount: floor(random(3, 8)),
+      wildness: random(0.5, 2.5) // How irregular the blob is
+    });
+  }
 }
 
 function createParchmentTexture() {
@@ -66,10 +70,11 @@ function createParchmentTexture() {
   parchmentTexture.loadPixels();
   for (let x = 0; x < parchmentTexture.width; x += 2) {
     for (let y = 0; y < parchmentTexture.height; y += 2) {
-      let n = noise(x * 0.01, y * 0.01) * 15;
-      let r = 244 - n;
-      let g = 232 - n;
-      let b = 208 - n;
+      let n = noise(x * 0.01, y * 0.01) * 20;
+      // Chocolate brown with variation
+      let r = 92 - n;
+      let g = 74 - n;
+      let b = 58 - n;
       let index = (x + y * parchmentTexture.width) * 4;
       parchmentTexture.pixels[index] = r;
       parchmentTexture.pixels[index + 1] = g;
@@ -92,12 +97,7 @@ function draw() {
     drawGuardianOrbs();
 
     // Update time for animation
-    timeOffset += 0.003;
-
-    // Visual feedback for hold progress
-    if (isHolding) {
-      drawHoldProgress();
-    }
+    timeOffset += 0.004;
   } else {
     // Show frozen image
     if (frozenImage) {
@@ -119,27 +119,17 @@ function drawInkblot() {
   drawingContext.shadowBlur = 20;
   drawingContext.shadowColor = GLOW_COLOR;
 
-  // Draw left half
   fill(INK_COLOR);
   noStroke();
-  beginShape();
-  for (let point of inkblotPoints) {
-    let r = getRadiusAtAngle(point.angle, point.noiseOffsetX, point.noiseOffsetY);
-    let x = r * cos(point.angle);
-    let y = r * sin(point.angle);
-    vertex(x, y);
-  }
-  endShape(CLOSE);
 
-  // Draw mirrored right half (vertical symmetry)
-  beginShape();
-  for (let point of inkblotPoints) {
-    let r = getRadiusAtAngle(point.angle, point.noiseOffsetX, point.noiseOffsetY);
-    let x = -r * cos(point.angle); // Mirror X
-    let y = r * sin(point.angle);
-    vertex(x, y);
+  // Draw each blob with vertical symmetry
+  for (let blob of inkblotBlobs) {
+    // Draw left side blob
+    drawSingleBlob(blob.x, blob.y, blob);
+
+    // Draw mirrored right side blob
+    drawSingleBlob(-blob.x, blob.y, blob);
   }
-  endShape(CLOSE);
 
   // Reset shadow
   drawingContext.shadowBlur = 0;
@@ -147,33 +137,62 @@ function drawInkblot() {
   pop();
 }
 
-function getRadiusAtAngle(angle, offsetX, offsetY) {
-  // Use multiple layers of Perlin noise for organic complexity
-  let noise1 = noise(
-    cos(angle) * 2 + timeOffset + offsetX,
-    sin(angle) * 2 + timeOffset + offsetY
-  );
+function drawSingleBlob(centerX, centerY, blob) {
+  beginShape();
 
-  let noise2 = noise(
-    cos(angle * 2) * 1.5 + timeOffset * 1.5 + offsetX,
-    sin(angle * 2) * 1.5 + timeOffset * 1.5 + offsetY
-  );
+  let numPoints = 120;
 
-  let noise3 = noise(
-    cos(angle * 0.5) + timeOffset * 0.5 + offsetX,
-    sin(angle * 0.5) + timeOffset * 0.5 + offsetY
-  );
+  for (let i = 0; i <= numPoints; i++) {
+    let angle = (TWO_PI / numPoints) * i;
 
-  // Combine noise layers for complex organic shapes
-  let combinedNoise = (noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2);
+    // Multiple layers of noise for complex organic shapes
+    let noise1 = noise(
+      centerX * 0.01 + cos(angle) * 2 + timeOffset + blob.noiseOffsetX,
+      centerY * 0.01 + sin(angle) * 2 + timeOffset + blob.noiseOffsetY
+    );
 
-  // Create lobes and tentacles
-  let angleVariation = sin(angle * 3 + timeOffset * 2) * 0.3 + 1;
+    let noise2 = noise(
+      centerX * 0.01 + cos(angle * 3) * 1.5 + timeOffset * 1.3 + blob.noiseOffsetX,
+      centerY * 0.01 + sin(angle * 3) * 1.5 + timeOffset * 1.3 + blob.noiseOffsetY
+    );
 
-  // Scale based on canvas size
-  let baseRadius = min(width, height) * 0.25;
+    let noise3 = noise(
+      centerX * 0.005 + cos(angle * 0.5) + timeOffset * 0.7 + blob.noiseOffsetX,
+      centerY * 0.005 + sin(angle * 0.5) + timeOffset * 0.7 + blob.noiseOffsetY
+    );
 
-  return baseRadius * combinedNoise * angleVariation;
+    // Create tentacles and lobes with sine variations
+    let tentacleEffect = 0;
+    for (let t = 0; t < blob.tentacleCount; t++) {
+      let tentacleAngle = (TWO_PI / blob.tentacleCount) * t;
+      let tentacleDist = abs(angle - tentacleAngle);
+      if (tentacleDist > PI) tentacleDist = TWO_PI - tentacleDist;
+
+      // Sharp protrusions for tentacles
+      tentacleEffect += (1 - tentacleDist / PI) * sin(timeOffset * 3 + t) * 0.4;
+    }
+
+    // Combine all effects for wildly irregular organic shapes
+    let radiusVariation = (noise1 * 0.4 + noise2 * 0.3 + noise3 * 0.3);
+    radiusVariation += tentacleEffect * blob.wildness;
+
+    // Add edge rippling and bulging
+    let edgeRipple = sin(angle * 7 + timeOffset * 4) * 0.15;
+    let edgeBulge = cos(angle * 4 - timeOffset * 2.5) * 0.2;
+
+    radiusVariation += (edgeRipple + edgeBulge) * noise1;
+
+    // Clamp to create negative space (some blobs shrink/disappear at times)
+    radiusVariation = constrain(radiusVariation, 0.2, 1.8);
+
+    let r = blob.baseRadius * radiusVariation;
+    let x = centerX + r * cos(angle);
+    let y = centerY + r * sin(angle);
+
+    curveVertex(x, y);
+  }
+
+  endShape(CLOSE);
 }
 
 function drawGuardianOrbs() {
@@ -208,43 +227,17 @@ function drawGuardianOrbs() {
   }
 }
 
-function drawHoldProgress() {
-  let elapsed = millis() - holdStartTime;
-  let progress = elapsed / HOLD_DURATION;
-
-  if (progress > 1) progress = 1;
-
-  // Draw progress ring
-  push();
-  translate(width / 2, height / 2);
-  noFill();
-  stroke(255, 215, 0, 200);
-  strokeWeight(8);
-  arc(0, 0, 100, 100, -HALF_PI, -HALF_PI + TWO_PI * progress);
-  pop();
-}
-
 function mousePressed() {
   if (!frozen) {
-    isHolding = true;
-    holdStartTime = millis();
-  }
-}
-
-function mouseReleased() {
-  isHolding = false;
-}
-
-function touchStarted() {
-  if (!frozen) {
-    isHolding = true;
-    holdStartTime = millis();
+    freezeInkblot();
   }
   return false;
 }
 
-function touchEnded() {
-  isHolding = false;
+function touchStarted() {
+  if (!frozen) {
+    freezeInkblot();
+  }
   return false;
 }
 
@@ -258,17 +251,6 @@ function freezeInkblot() {
 }
 
 function setupEventListeners() {
-  // Check for hold completion
-  setInterval(() => {
-    if (isHolding && !frozen) {
-      let elapsed = millis() - holdStartTime;
-      if (elapsed >= HOLD_DURATION) {
-        isHolding = false;
-        freezeInkblot();
-      }
-    }
-  }, 100);
-
   // Submit button
   document.getElementById('submit-vision').addEventListener('click', () => {
     let input = document.getElementById('vision-input').value.toLowerCase().trim();
@@ -339,6 +321,9 @@ function windowResized() {
 
   // Recreate parchment texture at new size
   createParchmentTexture();
+
+  // Reinitialize blobs for new canvas size
+  initializeBlobs();
 
   if (frozen && frozenImage) {
     // Redraw frozen image at new size
