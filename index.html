@@ -494,7 +494,7 @@
             }
         }
 
-        function drawMetaball() {
+        function drawMetaball(time) {
             // Get current canvas content (which should be the parchment)
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
@@ -667,7 +667,7 @@
             }
 
             blobs.forEach(blob => blob.update(time));
-            drawMetaball();
+            drawMetaball(time);
 
             stars.forEach(star => {
                 star.update();
@@ -928,7 +928,7 @@
 
         // Draw initial frame immediately before animation starts
         ctx.putImageData(parchmentBackground, 0, 0);
-        drawMetaball();
+        drawMetaball(0);
 
         // Draw initial stars
         stars.forEach(star => star.draw());
