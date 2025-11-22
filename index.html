@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Void Mirror - Inkblot Oracle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f7f1e1;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #newInkblotBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: rgba(10, 10, 10, 0.85);
+            color: #f7f1e1;
+            border: 2px solid rgba(139, 119, 101, 0.5);
+            border-radius: 8px;
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #newInkblotBtn:hover {
+            background: rgba(10, 10, 10, 0.95);
+            border-color: rgba(139, 119, 101, 0.8);
+            transform: scale(1.05);
+        }
+
+        #interpretationPanel {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            background: rgba(247, 241, 225, 0.95);
+            border: 3px solid rgba(10, 10, 10, 0.3);
+            border-radius: 16px 16px 0 0;
+            padding: 30px;
+            pointer-events: all;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            box-shadow: 0 -8px 32px rgba(10, 10, 10, 0.2);
+        }
+
+        #interpretationPanel.visible {
+            opacity: 1;
+        }
+
+        .rainbow-prompt {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg,
+                #ff0000 0%,
+                #ff7f00 16.67%,
+                #ffff00 33.33%,
+                #00ff00 50%,
+                #0000ff 66.67%,
+                #4b0082 83.33%,
+                #9400d3 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes rainbowPulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+
+        #visionInput {
+            width: 100%;
+            padding: 15px;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            border: 2px solid rgba(10, 10, 10, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            margin-bottom: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #visionInput:focus {
+            border-color: rgba(10, 10, 10, 0.6);
+        }
+
+        #submitVision {
+            width: 100%;
+            padding: 15px;
+            background: rgba(10, 10, 10, 0.85);
+            color: #f7f1e1;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #submitVision:hover {
+            background: rgba(10, 10, 10, 0.95);
+            transform: scale(1.02);
+        }
+
+        #readingResult {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border: 2px solid rgba(139, 119, 101, 0.3);
+            display: none;
+        }
+
+        #readingResult.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reading-section {
+            margin-bottom: 20px;
+        }
+
+        .reading-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .reading-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0a0a0a;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .reading-content {
+            font-size: 16px;
+            color: #2a2a2a;
+            line-height: 1.6;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid rgba(10, 10, 10, 0.3);
+            vertical-align: middle;
+        }
+
+        .title-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+        }
+
+        .title-overlay h1 {
+            font-size: 28px;
+            color: rgba(10, 10, 10, 0.7);
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(247, 241, 225, 0.8);
+        }
+
+        .title-overlay p {
+            font-size: 14px;
+            color: rgba(10, 10, 10, 0.5);
+            font-style: italic;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="ui-overlay">
+        <div class="title-overlay">
+            <h1>The Void Mirror</h1>
+            <p>Ink as shadow, silence, and unseen truth.</p>
+        </div>
+
+        <button id="newInkblotBtn">New Inkblot</button>
+
+        <div id="interpretationPanel">
+            <div class="rainbow-prompt">🌈 What do you see?</div>
+            <input type="text" id="visionInput" placeholder="Type what you perceive...">
+            <button id="submitVision">Submit Vision</button>
+            <div id="readingResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const newInkblotBtn = document.getElementById('newInkblotBtn');
+        const interpretationPanel = document.getElementById('interpretationPanel');
+        const visionInput = document.getElementById('visionInput');
+        const submitVision = document.getElementById('submitVision');
+        const readingResult = document.getElementById('readingResult');
+
+        let width, height;
+        let blobs = [];
+        let stars = [];
+        let animationId = null;
+        let isFrozen = false;
+        let frozenImageData = null;
+        let parchmentBackground = null; // Cache for antique parchment texture
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            parchmentBackground = null; // Reset parchment cache on resize
+        }
+
+        // Improved Perlin-like noise function for smooth organic shapes
+        function noise(x, y) {
+            const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+            return n - Math.floor(n);
+        }
+
+        // Smooth interpolation for organic curves
+        function smoothstep(t) {
+            return t * t * (3 - 2 * t);
+        }
+
+        // Multi-octave noise for complex organic patterns
+        function perlinNoise(x, y, octaves = 4) {
+            let value = 0;
+            let amplitude = 1;
+            let frequency = 1;
+            let maxValue = 0;
+
+            for (let i = 0; i < octaves; i++) {
+                value += noise(x * frequency, y * frequency) * amplitude;
+                maxValue += amplitude;
+                amplitude *= 0.5;
+                frequency *= 2;
+            }
+
+            return value / maxValue;
+        }
+
+        // Organic noise with smooth interpolation
+        function organicNoise(x, y, seed = 0) {
+            const xi = Math.floor(x);
+            const yi = Math.floor(y);
+            const xf = x - xi;
+            const yf = y - yi;
+
+            const n00 = noise(xi + seed, yi + seed);
+            const n10 = noise(xi + 1 + seed, yi + seed);
+            const n01 = noise(xi + seed, yi + 1 + seed);
+            const n11 = noise(xi + 1 + seed, yi + 1 + seed);
+
+            const nx0 = n00 * (1 - smoothstep(xf)) + n10 * smoothstep(xf);
+            const nx1 = n01 * (1 - smoothstep(xf)) + n11 * smoothstep(xf);
+
+            return nx0 * (1 - smoothstep(yf)) + nx1 * smoothstep(yf);
+        }
+
+        class Blob {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // Constrain inkblot to center 35% of screen
+                const inkblotWidth = width * 0.35;
+                const inkblotHeight = height * 0.35;
+                const centerX = width / 2;
+                const centerY = height / 2;
+
+                // Position blobs within the center region (half goes to left side for mirroring)
+                this.x = centerX - inkblotWidth / 2 + Math.random() * (inkblotWidth / 2);
+                this.y = centerY - inkblotHeight / 2 + Math.random() * inkblotHeight;
+
+                // Moderate blob sizes to show irregular features clearly
+                const sizeType = Math.random();
+                if (sizeType < 0.3) {
+                    // Small organic blobs
+                    this.baseRadius = 25 + Math.random() * 20;
+                } else if (sizeType < 0.7) {
+                    // Medium flowing shapes
+                    this.baseRadius = 45 + Math.random() * 25;
+                } else {
+                    // Larger central blobs
+                    this.baseRadius = 70 + Math.random() * 30;
+                }
+
+                this.radius = this.baseRadius;
+                this.targetRadius = this.baseRadius;
+
+                // Increased velocity for visible dynamic motion
+                const speedType = Math.random();
+                if (speedType < 0.3) {
+                    // Slow drifters
+                    this.vx = (Math.random() - 0.5) * 0.8;
+                    this.vy = (Math.random() - 0.5) * 0.8;
+                } else if (speedType < 0.7) {
+                    // Medium movers
+                    this.vx = (Math.random() - 0.5) * 1.2;
+                    this.vy = (Math.random() - 0.5) * 1.2;
+                } else {
+                    // Faster blobs for more dynamics
+                    this.vx = (Math.random() - 0.5) * 1.6;
+                    this.vy = (Math.random() - 0.5) * 1.6;
+                }
+
+                // Organic motion parameters
+                this.noiseOffsetX = Math.random() * 1000;
+                this.noiseOffsetY = Math.random() * 1000;
+                this.noiseScale = 0.002 + Math.random() * 0.003;
+
+                // Complex irregular shape parameters for true Rorschach patterns
+                this.shapeNoiseOffset = Math.random() * 1000;
+                this.shapeNoiseOffset2 = Math.random() * 1000 + 500;
+                this.shapeNoiseOffset3 = Math.random() * 1000 + 1000;
+
+                // High complexity for organic irregular edges
+                this.shapeComplexity = 8 + Math.floor(Math.random() * 8); // 8-15 protrusions/indentations
+                this.shapeComplexity2 = 12 + Math.floor(Math.random() * 10); // Secondary detail layer
+                this.shapeComplexity3 = 20 + Math.floor(Math.random() * 15); // Fine organic texture
+
+                // Varied irregularity for complex organic shapes
+                this.irregularityAmount = 0.6 + Math.random() * 0.8; // 60-140% variation for dramatic organic features
+                this.irregularityAmount2 = 0.3 + Math.random() * 0.4; // Secondary variation layer
+                this.irregularityAmount3 = 0.15 + Math.random() * 0.25; // Fine detail layer
+
+                // Varied morphing with 2-3 second cycles
+                this.phase = Math.random() * Math.PI * 2;
+                this.pulseSpeed = 0.03 + Math.random() * 0.025; // ~2-3 second cycles with variation
+                this.pulseAmount = this.baseRadius * (0.5 + Math.random() * 0.4);
+
+                // Lava lamp rise and fall - varied speeds
+                this.verticalDrift = (Math.random() - 0.5) * 0.7;
+                this.driftPhase = Math.random() * Math.PI * 2;
+                this.driftSpeed = 0.004 + Math.random() * 0.012;
+
+                // Complex morphing with multiple frequencies
+                this.morphPhase = Math.random() * Math.PI * 2;
+                this.morphSpeed = 0.03 + Math.random() * 0.025;
+                this.morphPhase2 = Math.random() * Math.PI * 2;
+                this.morphSpeed2 = 0.02 + Math.random() * 0.02;
+            }
+
+            update(time) {
+                // Organic noise-based movement
+                const noiseX = noise(
+                    this.x * this.noiseScale + time * 0.0001,
+                    this.y * this.noiseScale
+                ) * 2 - 1;
+                const noiseY = noise(
+                    this.x * this.noiseScale,
+                    this.y * this.noiseScale + time * 0.0001
+                ) * 2 - 1;
+
+                // Very gentle noise for smooth organic drift
+                this.vx += noiseX * 0.08;
+                this.vy += noiseY * 0.08;
+
+                // Very slow lava lamp rise and fall
+                this.driftPhase += this.driftSpeed;
+                this.vy += Math.sin(this.driftPhase) * 0.1 + this.verticalDrift * 0.02;
+
+                // Complex pulsing and morphing - multiple frequencies for organic irregularity
+                this.phase += this.pulseSpeed;
+                this.morphPhase += this.morphSpeed;
+                this.morphPhase2 += this.morphSpeed2;
+
+                const pulse = Math.sin(this.phase) * this.pulseAmount;
+                const morph1 = Math.sin(this.morphPhase * 1.7) * (this.pulseAmount * 0.5);
+                const morph2 = Math.cos(this.morphPhase2 * 2.3) * (this.pulseAmount * 0.3);
+                this.targetRadius = this.baseRadius + pulse + morph1 + morph2;
+                this.radius += (this.targetRadius - this.radius) * 0.08;
+
+                // Apply velocity
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Constrain to center 35% region
+                const inkblotWidth = width * 0.35;
+                const inkblotHeight = height * 0.35;
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const leftBound = centerX - inkblotWidth / 2;
+                const rightBound = centerX;
+                const topBound = centerY - inkblotHeight / 2;
+                const bottomBound = centerY + inkblotHeight / 2;
+
+                // Soft boundary - slow down near edges, no hard bounce
+                const edgeMargin = 50;
+                if (this.x < leftBound + edgeMargin) {
+                    this.vx += (leftBound + edgeMargin - this.x) * 0.001;
+                } else if (this.x > rightBound - edgeMargin) {
+                    this.vx -= (this.x - (rightBound - edgeMargin)) * 0.001;
+                }
+
+                if (this.y < topBound + edgeMargin) {
+                    this.vy += (topBound + edgeMargin - this.y) * 0.001;
+                } else if (this.y > bottomBound - edgeMargin) {
+                    this.vy -= (this.y - (bottomBound - edgeMargin)) * 0.001;
+                }
+
+                // Gentle pull toward center
+                const targetX = centerX - inkblotWidth / 4;
+                const targetY = centerY;
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist > 0) {
+                    this.vx += (dx / dist) * 0.01;
+                    this.vy += (dy / dist) * 0.01;
+                }
+
+                // Light damping for sustained dynamic motion
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+
+                // More frequent random impulses for dynamic motion
+                if (Math.random() < 0.02) {
+                    this.vx += (Math.random() - 0.5) * 0.5;
+                    this.vy += (Math.random() - 0.5) * 0.5;
+                }
+            }
+        }
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                const side = Math.floor(Math.random() * 4);
+                switch(side) {
+                    case 0: this.x = Math.random() * width; this.y = 0; break;
+                    case 1: this.x = width; this.y = Math.random() * height; break;
+                    case 2: this.x = Math.random() * width; this.y = height; break;
+                    case 3: this.x = 0; this.y = Math.random() * height; break;
+                }
+
+                this.opacity = 0;
+                this.targetOpacity = 0.05 + Math.random() * 0.15;
+                this.size = 2 + Math.random() * 4;
+                this.life = 0;
+                this.maxLife = 200 + Math.random() * 300;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.life++;
+                this.phase += 0.03;
+
+                if (this.life < 50) {
+                    this.opacity += (this.targetOpacity - this.opacity) * 0.02;
+                } else if (this.life > this.maxLife - 50) {
+                    this.opacity *= 0.98;
+                }
+
+                if (this.life > this.maxLife) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                const glow = Math.sin(this.phase) * 0.5 + 0.5;
+                const currentOpacity = this.opacity * glow;
+
+                ctx.save();
+                ctx.globalAlpha = currentOpacity;
+                ctx.fillStyle = '#f7f1e1';
+                ctx.shadowColor = '#f7f1e1';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initBlobs() {
+            blobs = [];
+            // Varied number of blobs for complex Rorschach compositions
+            // More blobs = more merging and organic complexity
+            const numBlobs = 10 + Math.floor(Math.random() * 8);
+            for (let i = 0; i < numBlobs; i++) {
+                blobs.push(new Blob());
+            }
+        }
+
+        function initStars() {
+            stars = [];
+            const numStars = 15 + Math.floor(Math.random() * 15);
+            for (let i = 0; i < numStars; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function drawMetaball(time) {
+            // Get current canvas content (which should be the parchment)
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            // Balanced threshold for smooth visible shapes
+            const threshold = 0.75;
+
+            // Calculate metaball values and draw black ink on top
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width / 2; x++) {
+                    let sum = 0;
+
+                    for (let blob of blobs) {
+                        const dx = x - blob.x;
+                        const dy = y - blob.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        // Complex multi-layer organic shape deformation for Rorschach patterns
+                        const angle = Math.atan2(dy, dx);
+
+                        // Layer 1: Primary large protrusions and indentations
+                        const shape1X = Math.cos(angle * blob.shapeComplexity) * 0.1;
+                        const shape1Y = Math.sin(angle * blob.shapeComplexity) * 0.1;
+                        const shapeNoise1 = organicNoise(
+                            shape1X + blob.shapeNoiseOffset,
+                            shape1Y + blob.shapeNoiseOffset + time * 0.00005
+                        );
+
+                        // Layer 2: Secondary medium-scale organic features
+                        const shape2X = Math.cos(angle * blob.shapeComplexity2) * 0.15;
+                        const shape2Y = Math.sin(angle * blob.shapeComplexity2) * 0.15;
+                        const shapeNoise2 = organicNoise(
+                            shape2X + blob.shapeNoiseOffset2,
+                            shape2Y + blob.shapeNoiseOffset2 + time * 0.00008,
+                            200
+                        );
+
+                        // Layer 3: Fine organic texture detail
+                        const shape3X = Math.cos(angle * blob.shapeComplexity3) * 0.2;
+                        const shape3Y = Math.sin(angle * blob.shapeComplexity3) * 0.2;
+                        const shapeNoise3 = organicNoise(
+                            shape3X + blob.shapeNoiseOffset3,
+                            shape3Y + blob.shapeNoiseOffset3 + time * 0.00012,
+                            400
+                        );
+
+                        // Add asymmetric variation for more organic natural look
+                        const asymmetry = Math.sin(angle * 3.7 + blob.shapeNoiseOffset) * 0.5 + 0.5;
+
+                        // Combine all layers with weighted influence
+                        const layer1 = (shapeNoise1 - 0.5) * blob.irregularityAmount;
+                        const layer2 = (shapeNoise2 - 0.5) * blob.irregularityAmount2;
+                        const layer3 = (shapeNoise3 - 0.5) * blob.irregularityAmount3;
+                        const asymmetryFactor = (asymmetry - 0.5) * 0.3;
+
+                        const totalVariation = layer1 + layer2 + layer3 + asymmetryFactor;
+                        const radiusVariation = 1.0 + totalVariation * 2.0;
+
+                        // Clamp to reasonable bounds while allowing dramatic features
+                        const effectiveRadius = Math.max(blob.radius * 0.3, Math.min(blob.radius * 2.0, blob.radius * radiusVariation));
+
+                        const distSq = dist * dist;
+
+                        // Metaball formula with irregular radius
+                        if (distSq > 0) {
+                            sum += (effectiveRadius * effectiveRadius) / distSq;
+                        } else {
+                            sum += effectiveRadius * 10;
+                        }
+                    }
+
+                    const index = (y * width + x) * 4;
+
+                    if (sum > threshold) {
+                        // Smooth edge anti-aliasing
+                        let alpha = 255;
+
+                        if (sum < threshold * 1.5) {
+                            const edgeFactor = (sum - threshold) / (threshold * 0.5);
+                            alpha = Math.min(255, edgeFactor * 255);
+                        }
+
+                        // Draw black ink over parchment
+                        data[index] = 10;
+                        data[index + 1] = 10;
+                        data[index + 2] = 10;
+                        data[index + 3] = alpha;
+                    }
+                }
+            }
+
+            // Mirror to create symmetry
+            for (let y = 0; y < height; y++) {
+                for (let x = Math.floor(width / 2); x < width; x++) {
+                    const mirrorX = width - x - 1;
+                    const sourceIndex = (y * width + mirrorX) * 4;
+                    const targetIndex = (y * width + x) * 4;
+
+                    // Only copy if there's actual ink at the source
+                    if (data[sourceIndex + 3] > 0 && data[sourceIndex] < 50) {
+                        data[targetIndex] = data[sourceIndex];
+                        data[targetIndex + 1] = data[sourceIndex + 1];
+                        data[targetIndex + 2] = data[sourceIndex + 2];
+                        data[targetIndex + 3] = data[sourceIndex + 3];
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function drawParchmentBackground() {
+            // Create authentic antique parchment texture
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+
+                    // Base parchment color #f7f1e1 with slight variation
+                    let r = 247;
+                    let g = 241;
+                    let b = 225;
+
+                    // Multi-scale paper texture (fine grain)
+                    const fineNoise = noise(x * 0.5, y * 0.5);
+                    const mediumNoise = noise(x * 0.1, y * 0.1);
+                    const coarseNoise = noise(x * 0.02, y * 0.02);
+
+                    const paperTexture = (fineNoise * 0.5 + mediumNoise * 0.3 + coarseNoise * 0.2) - 0.5;
+                    const textureVariation = paperTexture * 25;
+
+                    r += textureVariation;
+                    g += textureVariation;
+                    b += textureVariation;
+
+                    // Add organic fiber patterns
+                    const fiberNoise1 = noise(x * 0.03 + 50, y * 0.08 + 50);
+                    const fiberNoise2 = noise(x * 0.08 + 150, y * 0.03 + 150);
+                    if (fiberNoise1 > 0.6 || fiberNoise2 > 0.6) {
+                        const fiberDark = 5;
+                        r -= fiberDark;
+                        g -= fiberDark;
+                        b -= fiberDark;
+                    }
+
+                    // Add sepia aging spots
+                    const ageSpot1 = noise(x * 0.008 + 200, y * 0.008 + 200);
+                    const ageSpot2 = noise(x * 0.015 + 500, y * 0.015 + 500);
+
+                    if (ageSpot1 > 0.65) {
+                        const aging = (ageSpot1 - 0.65) * 50;
+                        r -= aging * 1.0;
+                        g -= aging * 1.15;
+                        b -= aging * 1.4;
+                    }
+
+                    if (ageSpot2 > 0.7) {
+                        const aging = (ageSpot2 - 0.7) * 30;
+                        r -= aging * 0.8;
+                        g -= aging * 1.0;
+                        b -= aging * 1.2;
+                    }
+
+                    // Subtle vignette at edges
+                    const distFromCenterX = Math.abs(x - width / 2) / (width / 2);
+                    const distFromCenterY = Math.abs(y - height / 2) / (height / 2);
+                    const vignette = Math.max(distFromCenterX, distFromCenterY);
+                    const vignetteAmount = Math.pow(vignette, 2) * 15;
+
+                    r -= vignetteAmount;
+                    g -= vignetteAmount;
+                    b -= vignetteAmount * 1.1;
+
+                    // Clamp values
+                    data[index] = Math.max(200, Math.min(255, r));
+                    data[index + 1] = Math.max(195, Math.min(255, g));
+                    data[index + 2] = Math.max(180, Math.min(255, b));
+                    data[index + 3] = 255;
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function animate(time) {
+            if (isFrozen) return;
+
+            // Draw parchment background (cached)
+            if (!parchmentBackground) {
+                drawParchmentBackground();
+                parchmentBackground = ctx.getImageData(0, 0, width, height);
+            } else {
+                ctx.putImageData(parchmentBackground, 0, 0);
+            }
+
+            blobs.forEach(blob => blob.update(time));
+            drawMetaball(time);
+
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function freezeAnimation() {
+            if (isFrozen) return;
+
+            isFrozen = true;
+            frozenImageData = ctx.getImageData(0, 0, width, height);
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            interpretationPanel.classList.add('visible');
+            visionInput.focus();
+        }
+
+        function unfreezeAnimation() {
+            isFrozen = false;
+            interpretationPanel.classList.remove('visible');
+            readingResult.classList.remove('visible');
+            visionInput.value = '';
+            readingResult.innerHTML = '';
+            requestAnimationFrame(animate);
+        }
+
+        function generateNewInkblot() {
+            if (isFrozen) {
+                unfreezeAnimation();
+            }
+            initBlobs();
+            initStars();
+            parchmentBackground = null; // Reset parchment cache for new inkblot
+        }
+
+        function analyzeColors() {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            let totalR = 0, totalG = 0, totalB = 0, count = 0;
+
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] > 128) {
+                    totalR += data[i];
+                    totalG += data[i + 1];
+                    totalB += data[i + 2];
+                    count++;
+                }
+            }
+
+            if (count === 0) {
+                return { r: 10, g: 10, b: 10, hex: '#0a0a0a' };
+            }
+
+            const r = Math.round(totalR / count);
+            const g = Math.round(totalG / count);
+            const b = Math.round(totalB / count);
+            const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+
+            return { r, g, b, hex };
+        }
+
+        function getColorMeaning(color) {
+            const meanings = {
+                black: "The void, the unconscious, mystery, depth, ancestral wisdom, the shadow self, introspection, and transformation through darkness.",
+                dark: "Deep contemplation, hidden truths, the liminal space between knowing and unknowing, ancestral memories, and sacred silence."
+            };
+
+            if (color.r < 50 && color.g < 50 && color.b < 50) {
+                return meanings.black;
+            }
+            return meanings.dark;
+        }
+
+        const oracleDict = {
+            "butterfly": "Transformation, metamorphosis, the soul's journey. You are in a period of profound change.",
+            "moth": "Drawn to light, seeking truth, navigating darkness with faith. Trust your inner compass.",
+            "bird": "Freedom, perspective, messages from the divine. Your spirit seeks to soar above limitation.",
+            "angel": "Divine protection, spiritual guidance, higher consciousness. You are being watched over.",
+            "demon": "Shadow aspects, repressed emotions, inner conflict. Face your fears with compassion.",
+            "face": "The self reflected back, identity, persona. Who are you beneath the masks you wear?",
+            "eyes": "Perception, awareness, being seen. What truth are you finally ready to witness?",
+            "skull": "Mortality, impermanence, transformation through death. Endings make way for beginnings.",
+            "tree": "Growth, roots, connection between earth and sky. You are grounded yet reaching.",
+            "flower": "Beauty emerging, unfolding, delicate strength. Allow yourself to bloom.",
+            "heart": "Love, emotion, the center of being. What does your heart truly desire?",
+            "hands": "Action, creation, connection. What are you reaching for or releasing?",
+            "spider": "Weaver of fate, patience, creative power. You are spinning your own reality.",
+            "snake": "Transformation, kundalini energy, healing. Shed what no longer serves you.",
+            "dragon": "Primal power, fire, guardian of treasures. Your strength is awakening.",
+            "wolf": "Instinct, pack loyalty, wild wisdom. Trust your primal knowing.",
+            "bear": "Strength, introspection, hibernation before rebirth. Rest is productive.",
+            "bat": "Rebirth, intuition, navigation through darkness. Your inner senses guide you.",
+            "moon": "Cycles, feminine power, the subconscious. Honor your rhythms and tides.",
+            "sun": "Consciousness, vitality, illumination. Step into your light.",
+            "star": "Hope, guidance, destiny. You are exactly where you need to be.",
+            "water": "Emotion, flow, the unconscious. Allow feelings to move through you.",
+            "fire": "Passion, transformation, destruction that creates. Your spirit is ignited.",
+            "mountain": "Challenges, perspective, ascending to higher truth. The climb is the initiation.",
+            "cave": "The womb, inner depths, retreat for wisdom. Go inward to find answers.",
+            "door": "Threshold, opportunity, passage. A new path is opening before you.",
+            "mirror": "Reflection, truth, seeing clearly. The outer world reflects your inner state.",
+            "mask": "Persona, hiding, protection. What would happen if you revealed yourself?",
+            "crown": "Authority, sovereignty, divine right. You are more powerful than you know.",
+            "key": "Unlocking, access, solution. You hold the answer you seek.",
+            "sword": "Clarity, decision, cutting through illusion. Speak your truth.",
+            "wings": "Ascension, freedom, transcendence. You are ready to rise.",
+            "roots": "Foundation, ancestry, belonging. Remember where you come from.",
+            "blood": "Life force, sacrifice, lineage. What animates your existence?",
+            "shadow": "The hidden self, what is denied or rejected. Integration brings wholeness.",
+            "light": "Consciousness, awakening, divine presence. You are seen and known.",
+            "child": "Innocence, potential, wonder. Reconnect with your original nature.",
+            "woman": "Feminine power, creation, intuition. The goddess speaks through you.",
+            "man": "Masculine energy, action, structure. Focused will manifests reality.",
+            "goddess": "Divine feminine, creatrix, sacred power. You embody cosmic wisdom.",
+            "god": "Divine masculine, order, cosmic law. You are architect of your world.",
+            "beast": "Primal nature, instinct, raw power. Do not fear your wildness.",
+            "creature": "The unknown, the other, that which defies categorization. Mystery is sacred.",
+            "monster": "Fear personified, the rejected self, power in ugliness. Your darkness holds gifts.",
+            "ghost": "Past echoes, unfinished business, ancestral presence. What haunts you seeks resolution.",
+            "spirit": "The eternal self, essence, that which transcends form. You are more than this body.",
+            "void": "Emptiness as potential, the nothing that contains everything. Rest in the unknown.",
+            "abyss": "The deep unknown, the terrifying infinite. Staring into it transforms you.",
+            "cosmos": "The all, interconnection, your place in infinity. You are stardust remembering itself.",
+            "chaos": "Creative disorder, the fertile nothing before form. Trust the process.",
+            "order": "Pattern, meaning, sacred geometry. There is intelligence in all things.",
+            "portal": "Gateway between worlds, transition. You are crossing a threshold.",
+            "labyrinth": "The journey inward, sacred confusion. Being lost is part of finding.",
+            "spiral": "Evolution, the sacred path, returning to center at a higher level. Growth is not linear.",
+            "circle": "Wholeness, completion, eternal return. What ends will begin again.",
+            "cross": "Intersection, meeting point, sacrifice. Where does the horizontal meet the vertical in your life?",
+            "triangle": "Trinity, balance of forces, ascending. Three elements converge.",
+            "square": "Foundation, stability, the material world. Ground yourself.",
+            "web": "Interconnection, fate, delicate strength. Your actions ripple outward.",
+            "net": "What catches, what holds, what contains. Are you trapped or supported?",
+            "path": "The way forward, the journey itself. Keep walking.",
+            "bridge": "Connection, transition, spanning the gap. You are creating passage.",
+            "tower": "Ambition, isolation, perspective from height. What did you build and why?",
+            "castle": "Protection, defense, the kingdom of self. Who guards your inner realm?",
+            "throne": "Power, seat of authority, where you rule. Claim your sovereignty.",
+            "crown": "Divine right, authority, recognition. You are worthy of this honor.",
+            "sword": "Truth, clarity, decisive action. Cut through confusion.",
+            "shield": "Protection, boundaries, defense. What are you guarding?",
+            "armor": "Protection that weighs heavy. What would happen if you were vulnerable?",
+            "wound": "Injury, pain, where healing is needed. Your wounds are gateways to wisdom.",
+            "scar": "Healed pain, proof of survival, beauty in damage. You have endured.",
+            "tear": "Grief, release, sacred sorrow. Let the waters flow.",
+            "smile": "Joy, acceptance, the face of contentment. Allow happiness.",
+            "scream": "Rage, terror, the voice that must be heard. Speak your truth loudly.",
+            "silence": "The space between, pregnant emptiness, the sound of the divine. Listen.",
+            "song": "Expression, harmony, the voice of soul. What wants to be sung through you?",
+            "dance": "Movement, joy, embodied prayer. Let your body speak.",
+            "breath": "Life force, spirit, the sacred rhythm. Return to the breath.",
+            "pulse": "Life, rhythm, the beating heart. You are alive, alive, alive."
+        };
+
+        function getOracleReading(vision) {
+            const lowerVision = vision.toLowerCase().trim();
+
+            for (let [key, meaning] of Object.entries(oracleDict)) {
+                if (lowerVision.includes(key)) {
+                    return { symbol: key, meaning: meaning };
+                }
+            }
+
+            const wordCount = lowerVision.split(/\s+/).length;
+            const genericReadings = [
+                {
+                    symbol: "the mirror's reflection",
+                    meaning: "What you see is a projection of your inner landscape. The subconscious speaks in shapes that logic cannot name. Trust what emerges from the void."
+                },
+                {
+                    symbol: "unnamed form",
+                    meaning: "Not all visions have words. Some truths exist beyond language, in the realm of pure perception. Your interpretation is valid simply because you perceived it."
+                },
+                {
+                    symbol: "personal symbolism",
+                    meaning: "This image belongs to you alone. It comes from the depths of your unique psyche, carrying meaning that only you can fully decipher. Honor your vision."
+                }
+            ];
+
+            return genericReadings[Math.floor(Math.random() * genericReadings.length)];
+        }
+
+        function displayReading(vision) {
+            const colors = analyzeColors();
+            const colorMeaning = getColorMeaning(colors);
+            const oracle = getOracleReading(vision);
+
+            readingResult.innerHTML = `
+                <div class="reading-section">
+                    <div class="reading-title">Color Reading</div>
+                    <div class="reading-content">
+                        <span class="color-swatch" style="background-color: ${colors.hex};"></span>
+                        <strong>Dominant Hue:</strong> ${colors.hex}<br>
+                        <strong>Meaning:</strong> ${colorMeaning}
+                    </div>
+                </div>
+                <div class="reading-section">
+                    <div class="reading-title">Symbolic Interpretation</div>
+                    <div class="reading-content">
+                        <strong>You Perceived:</strong> "${vision}"<br>
+                        <strong>Symbol:</strong> ${oracle.symbol}<br>
+                        <strong>Oracle Message:</strong> ${oracle.meaning}
+                    </div>
+                </div>
+            `;
+
+            readingResult.classList.add('visible');
+        }
+
+        canvas.addEventListener('click', () => {
+            if (!isFrozen) {
+                freezeAnimation();
+            }
+        });
+
+        newInkblotBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            generateNewInkblot();
+        });
+
+        submitVision.addEventListener('click', () => {
+            const vision = visionInput.value.trim();
+            if (vision) {
+                displayReading(vision);
+            }
+        });
+
+        visionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const vision = visionInput.value.trim();
+                if (vision) {
+                    displayReading(vision);
+                }
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            if (isFrozen && frozenImageData) {
+                ctx.putImageData(frozenImageData, 0, 0);
+            }
+        });
+
+        resizeCanvas();
+
+        // Initialize parchment background immediately to avoid black screen
+        drawParchmentBackground();
+        parchmentBackground = ctx.getImageData(0, 0, width, height);
+
+        initBlobs();
+        initStars();
+
+        // Draw initial frame immediately before animation starts
+        ctx.putImageData(parchmentBackground, 0, 0);
+        drawMetaball(0);
+
+        // Draw initial stars
+        stars.forEach(star => star.draw());
+
+        // Start animation loop with requestAnimationFrame (provides time parameter)
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
