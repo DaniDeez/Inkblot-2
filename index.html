@@ -299,20 +299,20 @@
                 this.radius = this.baseRadius;
                 this.targetRadius = this.baseRadius;
 
-                // More varied velocity for dynamic motion
+                // Increased velocity for visible dynamic motion
                 const speedType = Math.random();
                 if (speedType < 0.3) {
                     // Slow drifters
-                    this.vx = (Math.random() - 0.5) * 0.3;
-                    this.vy = (Math.random() - 0.5) * 0.3;
+                    this.vx = (Math.random() - 0.5) * 0.8;
+                    this.vy = (Math.random() - 0.5) * 0.8;
                 } else if (speedType < 0.7) {
                     // Medium movers
-                    this.vx = (Math.random() - 0.5) * 0.6;
-                    this.vy = (Math.random() - 0.5) * 0.6;
+                    this.vx = (Math.random() - 0.5) * 1.2;
+                    this.vy = (Math.random() - 0.5) * 1.2;
                 } else {
                     // Faster blobs for more dynamics
-                    this.vx = (Math.random() - 0.5) * 1.0;
-                    this.vy = (Math.random() - 0.5) * 1.0;
+                    this.vx = (Math.random() - 0.5) * 1.6;
+                    this.vy = (Math.random() - 0.5) * 1.6;
                 }
 
                 // Organic motion parameters
@@ -320,15 +320,15 @@
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Strong irregular shape deformation for organic Rorschach edges
+                // Moderate irregular shape deformation for smooth organic Rorschach edges
                 this.shapeNoiseOffset = Math.random() * 1000;
-                this.shapeComplexity = 5 + Math.floor(Math.random() * 4); // 5-8 irregular features
-                this.irregularityAmount = 0.8 + Math.random() * 0.8; // 80-160% variation for irregular shapes
+                this.shapeComplexity = 4 + Math.floor(Math.random() * 3); // 4-6 irregular features
+                this.irregularityAmount = 0.35 + Math.random() * 0.35; // 35-70% variation for smooth organic shapes
 
                 // Varied morphing with 2-3 second cycles
                 this.phase = Math.random() * Math.PI * 2;
                 this.pulseSpeed = 0.03 + Math.random() * 0.025; // ~2-3 second cycles with variation
-                this.pulseAmount = this.baseRadius * (0.3 + Math.random() * 0.5);
+                this.pulseAmount = this.baseRadius * (0.5 + Math.random() * 0.4);
 
                 // Lava lamp rise and fall - varied speeds
                 this.verticalDrift = (Math.random() - 0.5) * 0.7;
@@ -412,9 +412,9 @@
                     this.vy += (dy / dist) * 0.01;
                 }
 
-                // Moderate damping for more dynamic motion
-                this.vx *= 0.94;
-                this.vy *= 0.94;
+                // Light damping for sustained dynamic motion
+                this.vx *= 0.98;
+                this.vy *= 0.98;
 
                 // More frequent random impulses for dynamic motion
                 if (Math.random() < 0.02) {
@@ -499,8 +499,8 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
-            // Much lower threshold to ensure blobs are visible
-            const threshold = 0.6;
+            // Balanced threshold for smooth visible shapes
+            const threshold = 0.75;
 
             // Calculate metaball values and draw black ink on top
             for (let y = 0; y < height; y++) {
@@ -525,10 +525,10 @@
                             Math.sin(angle * blob.shapeComplexity * 2) + blob.shapeNoiseOffset + time * 0.00012
                         );
 
-                        // Combine noise for rich organic variation
+                        // Combine noise for smooth organic variation
                         const combinedNoise = shapeNoise1 * 0.7 + shapeNoise2 * 0.3;
-                        const radiusVariation = 1.0 + (combinedNoise - 0.5) * blob.irregularityAmount * 1.8;
-                        const effectiveRadius = Math.max(blob.radius * 0.4, blob.radius * radiusVariation);
+                        const radiusVariation = 1.0 + (combinedNoise - 0.5) * blob.irregularityAmount * 2.0;
+                        const effectiveRadius = Math.max(blob.radius * 0.6, blob.radius * radiusVariation);
 
                         const distSq = dist * dist;
 
