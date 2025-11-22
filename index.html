@@ -252,11 +252,17 @@
         let stars = [];
         let animationId = null;
         let parchmentBackground = null; // Cache for antique parchment texture
+        let lowResParchment = null; // Cache for low-res parchment
+        let tempCanvas = null; // Reusable temp canvas for metaball rendering
+        let tempCtx = null;
 
         function resizeCanvas() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             parchmentBackground = null; // Reset parchment cache on resize
+            lowResParchment = null; // Reset low-res parchment
+            tempCanvas = null; // Reset temp canvas
+            tempCtx = null;
         }
 
         // Improved Perlin-like noise function for smooth organic shapes
@@ -540,20 +546,28 @@
         }
 
         function drawMetaball(time) {
-            // Render at lower resolution for massive performance boost (4x faster)
-            const scale = 0.5; // Render at half resolution
+            // Render at VERY low resolution for extreme performance (16x faster!)
+            const scale = 0.25; // Render at quarter resolution
             const renderWidth = Math.floor(width * scale);
             const renderHeight = Math.floor(height * scale);
 
-            // Create low-res canvas for metaball rendering
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = renderWidth;
-            tempCanvas.height = renderHeight;
-            const tempCtx = tempCanvas.getContext('2d');
+            // Create temp canvas once and reuse
+            if (!tempCanvas || tempCanvas.width !== renderWidth) {
+                tempCanvas = document.createElement('canvas');
+                tempCanvas.width = renderWidth;
+                tempCanvas.height = renderHeight;
+                tempCtx = tempCanvas.getContext('2d', { alpha: true });
+            }
 
-            // Get current canvas content (parchment) at low res
-            tempCtx.drawImage(canvas, 0, 0, renderWidth, renderHeight);
-            const imageData = tempCtx.getImageData(0, 0, renderWidth, renderHeight);
+            // Cache low-res parchment background
+            if (!lowResParchment || lowResParchment.width !== renderWidth) {
+                tempCtx.drawImage(canvas, 0, 0, renderWidth, renderHeight);
+                lowResParchment = tempCtx.getImageData(0, 0, renderWidth, renderHeight);
+            }
+
+            // Start with cached low-res parchment
+            const imageData = tempCtx.createImageData(renderWidth, renderHeight);
+            imageData.data.set(lowResParchment.data);
             const data = imageData.data;
 
             // Higher threshold for distinct separated blobs
