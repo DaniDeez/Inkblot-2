@@ -4,8 +4,8 @@ class Blob {
         this.y = y;
         this.radius = radius;
         this.baseRadius = radius;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
+        this.vx = (Math.random() - 0.5) * 2.5;
+        this.vy = (Math.random() - 0.5) * 2.5;
         this.canvas = canvas;
         this.phase = Math.random() * Math.PI * 2;
         this.radiusSpeed = 0.02 + Math.random() * 0.03;
@@ -54,10 +54,10 @@ class InkblotAnimation {
 
     createBlobs() {
         this.blobs = [];
-        const numBlobs = 8 + Math.floor(Math.random() * 5);
+        const numBlobs = 18 + Math.floor(Math.random() * 8);
 
         for (let i = 0; i < numBlobs; i++) {
-            const radius = 40 + Math.random() * 60;
+            const radius = 25 + Math.random() * 20;
             const x = radius + Math.random() * (this.canvas.width / 2 - radius * 2);
             const y = radius + Math.random() * (this.canvas.height - radius * 2);
             this.blobs.push(new Blob(x, y, radius, this.canvas));
@@ -119,7 +119,7 @@ class InkblotAnimation {
                 }
 
                 // Threshold for metaball effect
-                const threshold = 1.5;
+                const threshold = 2.2;
                 const index = (y * this.canvas.width + x) * 4;
                 const mirrorIndex = (y * this.canvas.width + (this.canvas.width - 1 - x)) * 4;
 
