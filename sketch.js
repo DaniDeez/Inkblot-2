@@ -253,14 +253,17 @@ function generateNewInkblot() {
     inkblotData.push(zone);
   }
 
-  // SMALL SATELLITE SPLATTERS
+  // SMALL SATELLITE SPLATTERS (half small, half larger and more irregular)
   for (let i = 0; i < numSatellites; i++) {
+    // Half of satellites are larger and more irregular
+    let isLargerSatellite = random() > 0.5;
+
     let zone = {
       centerX: random(-width * 0.25, width * 0.25), // Wide spread
       centerY: random(-height * 0.4, height * 0.4),
-      baseRadius: random(8, 30), // Small
+      baseRadius: isLargerSatellite ? random(30, 65) : random(8, 30), // Larger or small
       points: [],
-      type: 'satellite'
+      type: isLargerSatellite ? 'satellite_large' : 'satellite'
     };
 
     generateBlobShape(zone);
@@ -272,7 +275,15 @@ function generateNewInkblot() {
 
 function generateBlobShape(zone) {
   // Generate blob shape with extreme Perlin noise variation for irregular edges
-  let numPoints = zone.type === 'satellite' ? floor(random(6, 12)) : floor(random(20, 40));
+  let numPoints;
+  if (zone.type === 'satellite') {
+    numPoints = floor(random(6, 12)); // Small satellites
+  } else if (zone.type === 'satellite_large') {
+    numPoints = floor(random(12, 25)); // More points for larger, more irregular satellites
+  } else {
+    numPoints = floor(random(20, 40)); // Main and secondary zones
+  }
+
   let noiseOffset = random(1000);
 
   for (let j = 0; j < numPoints; j++) {
@@ -286,25 +297,41 @@ function generateBlobShape(zone) {
     // Combine noise octaves for complex shape with EXTREME variation
     let radiusVariation = noiseVal1 * 0.3 + noiseVal2 * 0.4 + noiseVal3 * 0.3;
 
-    // Create sharp protrusions and deep indentations (0.2 to 1.5 range)
+    // Create sharp protrusions and deep indentations
     let extremeNoise = noise(j * 0.08 + noiseOffset + 500);
     let radiusMultiplier;
 
-    if (extremeNoise < 0.2) {
-      // Deep indentation
-      radiusMultiplier = 0.2 + radiusVariation * 0.3;
-    } else if (extremeNoise > 0.8) {
-      // Sharp protrusion
-      radiusMultiplier = 1.0 + radiusVariation * 0.8;
+    // Larger satellites get even MORE extreme variation
+    if (zone.type === 'satellite_large') {
+      if (extremeNoise < 0.25) {
+        // Very deep indentation
+        radiusMultiplier = 0.15 + radiusVariation * 0.4;
+      } else if (extremeNoise > 0.75) {
+        // Very sharp protrusion
+        radiusMultiplier = 1.1 + radiusVariation * 1.0;
+      } else {
+        // Normal variation but wider range
+        radiusMultiplier = 0.3 + radiusVariation * 1.1;
+      }
     } else {
-      // Normal variation
-      radiusMultiplier = 0.4 + radiusVariation * 0.9;
+      if (extremeNoise < 0.2) {
+        // Deep indentation
+        radiusMultiplier = 0.2 + radiusVariation * 0.3;
+      } else if (extremeNoise > 0.8) {
+        // Sharp protrusion
+        radiusMultiplier = 1.0 + radiusVariation * 0.8;
+      } else {
+        // Normal variation
+        radiusMultiplier = 0.4 + radiusVariation * 0.9;
+      }
     }
 
     let radius = zone.baseRadius * radiusMultiplier;
 
     // Add angular distortion for lobes and organic curves
-    let angleDistortion = noise(j * 0.15 + noiseOffset + 300) * 0.6 - 0.3;
+    // More distortion for larger satellites
+    let distortionAmount = zone.type === 'satellite_large' ? 0.8 : 0.6;
+    let angleDistortion = noise(j * 0.15 + noiseOffset + 300) * distortionAmount - (distortionAmount / 2);
     let finalAngle = angle + angleDistortion;
 
     zone.points.push({
