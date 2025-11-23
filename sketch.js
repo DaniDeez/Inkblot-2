@@ -17,40 +17,153 @@ let isHolding = false;
 let inkblotData = [];
 let inkblotGenerated = false;
 
-// Symbolic readings dictionary
+// Symbolic readings with trigger words
 const symbolReadings = {
-  shell: "Protection, inner sanctuary, sacred silence. A spiral back to your source.",
-  pearl: "Wisdom through pressure. Soft power born from irritation.",
-  wave: "Emotion in motion. What rises must return.",
-  coral: "Delicate interconnection. You are part of the unseen reef.",
-  jellyfish: "Transparency, passive movement, bioluminescent defense.",
-  spiral: "Becoming, rebirth, and divine design coded in you.",
-  swan: "Grace, loyalty, and the sorrow-beauty of transformation.",
-  water: "Flow, adaptability, the ancient language of feeling.",
-  moon: "Cycles, intuition, the tide-keeper within you.",
-  mirror: "Self-reflection, truth beneath the surface, parallel worlds.",
-  feather: "Lightness, ascension, messages from the unseen.",
-  flower: "Unfolding, vulnerability as strength, beauty in becoming.",
-  eye: "Perception, witness, the gaze that changes what it sees.",
-  wing: "Freedom, transcendence, the courage to rise.",
-  root: "Grounding, ancestry, nourishment from the depths.",
-  star: "Guidance, distant light, your place in the constellation.",
-  ocean: "Vastness, mystery, the womb of all becoming.",
-  crystal: "Clarity, structure born from chaos, prismatic truth.",
-  serpent: "Transformation, wisdom, the shedding of old selves.",
-  butterfly: "Metamorphosis, ephemeral beauty, trust in change.",
-  lotus: "Purity from muddy depths, spiritual awakening.",
-  labyrinth: "Journey inward, sacred confusion, the path that teaches.",
-  bridge: "Connection, passage, between-worlds walking.",
-  veil: "Mystery, the sacred unknown, what asks to be revealed.",
-  vessel: "Container, holder of essence, sacred emptiness.",
-  light: "Illumination, consciousness, the divine spark within.",
-  shadow: "The unintegrated, hidden treasure, what you refuse to see.",
-  bird: "Freedom, perspective, soul's flight between realms.",
-  tree: "Growth, connection of earth and sky, the world axis.",
-  cave: "Inner sanctuary, the unconscious, what waits in darkness.",
-  flame: "Passion, transformation, the consuming and renewing force."
+  // Original symbols
+  shell: { message: "Protection, inner sanctuary, sacred silence. A spiral back to your source.", triggers: ["shell", "spiral", "coil"] },
+  pearl: { message: "Wisdom through pressure. Soft power born from irritation.", triggers: ["pearl", "gem", "orb"] },
+  wave: { message: "Emotion in motion. What rises must return.", triggers: ["wave", "tide", "swell"] },
+  coral: { message: "Delicate interconnection. You are part of the unseen reef.", triggers: ["coral", "reef"] },
+  jellyfish: { message: "Transparency, passive movement, bioluminescent defense.", triggers: ["jellyfish", "transparent"] },
+  spiral: { message: "Becoming, rebirth, and divine design coded in you.", triggers: ["spiral", "swirl", "coil"] },
+  swan: { message: "Grace, loyalty, and the sorrow-beauty of transformation.", triggers: ["swan", "graceful"] },
+  water: { message: "Flow, adaptability, the ancient language of feeling.", triggers: ["water", "liquid", "flow"] },
+  moon: { message: "Cycles, intuition, the tide-keeper within you.", triggers: ["moon", "lunar", "crescent"] },
+  mirror: { message: "Self-reflection, truth beneath the surface, parallel worlds.", triggers: ["mirror", "reflection", "twin"] },
+  feather: { message: "Lightness, ascension, messages from the unseen.", triggers: ["feather", "plume"] },
+  flower: { message: "Unfolding, vulnerability as strength, beauty in becoming.", triggers: ["flower", "bloom", "petal"] },
+  eye: { message: "Perception, witness, the gaze that changes what it sees.", triggers: ["eye", "eyes", "gaze", "look", "stare"] },
+  wing: { message: "Freedom, transcendence, the courage to rise.", triggers: ["wing", "wings", "flight"] },
+  root: { message: "Grounding, ancestry, nourishment from the depths.", triggers: ["root", "roots", "ground"] },
+  star: { message: "Guidance, distant light, your place in the constellation.", triggers: ["star", "stars", "constellation"] },
+  ocean: { message: "Vastness, mystery, the womb of all becoming.", triggers: ["ocean", "sea", "deep"] },
+  crystal: { message: "Clarity, structure born from chaos, prismatic truth.", triggers: ["crystal", "prism", "gem"] },
+  serpent: { message: "Transformation, wisdom, the shedding of old selves.", triggers: ["serpent", "snake", "reptile"] },
+  butterfly: { message: "Metamorphosis, ephemeral beauty, trust in change.", triggers: ["butterfly", "cocoon", "metamorphosis"] },
+  lotus: { message: "Purity from muddy depths, spiritual awakening.", triggers: ["lotus", "bloom"] },
+  labyrinth: { message: "Journey inward, sacred confusion, the path that teaches.", triggers: ["labyrinth", "maze", "path"] },
+  bridge: { message: "Connection, passage, between-worlds walking.", triggers: ["bridge", "cross", "connect"] },
+  veil: { message: "Mystery, the sacred unknown, what asks to be revealed.", triggers: ["veil", "curtain", "hidden"] },
+  vessel: { message: "Container, holder of essence, sacred emptiness.", triggers: ["vessel", "container", "bowl"] },
+  light: { message: "Illumination, consciousness, the divine spark within.", triggers: ["light", "glow", "shine", "radiance"] },
+  shadow: { message: "The unintegrated, hidden treasure, what you refuse to see.", triggers: ["shadow", "dark", "shade"] },
+  bird: { message: "Freedom, perspective, soul's flight between realms.", triggers: ["bird", "fly", "soar"] },
+  tree: { message: "Growth, connection of earth and sky, the world axis.", triggers: ["tree", "trunk", "branches"] },
+  cave: { message: "Inner sanctuary, the unconscious, what waits in darkness.", triggers: ["cave", "cavern", "hollow"] },
+  flame: { message: "Passion, transformation, the consuming and renewing force.", triggers: ["flame", "fire", "burn"] },
+
+  // Animals
+  moth: { message: "Transformation in darkness, attraction to the unseen, vulnerability to light.", triggers: ["moth", "flutter", "night"] },
+  crab: { message: "Emotional armor, cycles, home within, lunar instincts.", triggers: ["crab", "sideways", "claws"] },
+  lobster: { message: "Depth, regeneration, primal fears, armored emotions.", triggers: ["lobster", "claw", "red"] },
+  spider: { message: "Creative weaving, feminine power, shadow instinct.", triggers: ["spider", "web", "weave", "legs", "spin"] },
+  beetle: { message: "Ancient protection, rebirth, hidden strength.", triggers: ["beetle", "scarab", "insect", "bug"] },
+  bear: { message: "Strength, hibernation, inner power, guardian energy.", triggers: ["bear", "claws", "hibernate", "power", "wild"] },
+  scorpion: { message: "Shadow work, defense, poison and transformation.", triggers: ["scorpion", "sting", "tail"] },
+  elephant: { message: "Memory, wisdom, sacred ancestry, gentleness and strength.", triggers: ["elephant", "tusk", "trunk", "memory", "large"] },
+  dolphin: { message: "Joy, harmony, intuitive communication, sonic healing.", triggers: ["dolphin", "leap", "play", "swim"] },
+  wolf: { message: "Loyalty, instinct, teacher of the pack or lone path.", triggers: ["wolf", "howl", "wild", "alpha", "forest"] },
+  crow: { message: "Mystery, prophecy, message from the beyond.", triggers: ["crow", "raven", "black", "omen", "caw"] },
+  frog: { message: "Cleansing, metamorphosis, voice and rebirth.", triggers: ["frog", "jump", "pond", "ribbit", "wet"] },
+  lizard: { message: "Dreaming, regeneration, primordial instinct.", triggers: ["lizard", "tail", "desert", "crawl", "scale"] },
+  crocodile: { message: "Primal wisdom, survival, ancient emotions.", triggers: ["crocodile", "teeth", "swamp", "snap", "predator"] },
+  peacock: { message: "Beauty, display, divine pride, radiant aura.", triggers: ["peacock", "feather", "show", "strut", "color"] },
+  octopus: { message: "Adaptability, shape-shifting, deep subconscious.", triggers: ["octopus", "tentacle", "ink"] },
+  seahorse: { message: "Delicate strength, male nurturing, grace in currents.", triggers: ["seahorse", "float", "tiny"] },
+
+  // Human figures
+  "two people": { message: "Connection, reflection, relationship mirror.", triggers: ["pair", "duo", "two", "together", "partnership"] },
+  "dancing figures": { message: "Joy, ritual, movement in unison.", triggers: ["dance", "dancing", "moving", "spin", "celebrate", "joy"] },
+  person: { message: "Identity, projection, core self.", triggers: ["person", "individual", "someone", "human", "figure"] },
+
+  // Anatomy
+  lungs: { message: "Breath, life, grief and release.", triggers: ["lungs", "breathe", "air", "inhale", "exhale"] },
+  pelvis: { message: "Rooted power, sexuality, foundation.", triggers: ["pelvis", "hips", "base", "sex"] },
+  ribcage: { message: "Protection, vulnerability, sacred container.", triggers: ["rib", "ribs", "ribcage", "cage", "chest"] },
+  spine: { message: "Support, alignment, inner axis.", triggers: ["spine", "backbone", "core", "align", "vertebrae"] },
+  brain: { message: "Thought, perception, complexity.", triggers: ["brain", "thought", "mind", "intellect", "head"] },
+  heart: { message: "Emotion, love, pain, essence.", triggers: ["heart", "beat", "pulse", "emotion", "love"] },
+  uterus: { message: "Creation, divine feminine, inner cauldron.", triggers: ["uterus", "womb", "creation", "cycle", "feminine"] },
+  "internal organs": { message: "Gut feeling, hidden function, internal truth.", triggers: ["organs", "inside", "guts", "feelings", "intestines"] },
+  "x-ray": { message: "Seeing through, raw truth, vulnerability.", triggers: ["x-ray", "xray", "bones", "see-through", "scan"] },
+  bones: { message: "Structure, death and rebirth, foundation.", triggers: ["bones", "skeleton", "skeletal", "white", "core"] },
+  "blood vessels": { message: "Circulation, connection, vital pathways.", triggers: ["vein", "veins", "artery", "vessel", "blood"] },
+
+  // Mythological & Fantasy
+  dragon: { message: "Power, fire, inner beast, spiritual challenge.", triggers: ["dragon", "flame", "scale", "myth", "beast"] },
+  monster: { message: "Fear, shadow self, hidden truth.", triggers: ["monster", "beast", "terror", "creature", "scary"] },
+  alien: { message: "Outsider perspective, unknown intelligence.", triggers: ["alien", "space", "et", "weird", "different", "extraterrestrial"] },
+  creature: { message: "Uncategorized part of self, instinct.", triggers: ["creature", "thing", "odd", "wild"] },
+  ghost: { message: "Memory, past, haunting presence.", triggers: ["ghost", "spirit", "haunt", "phantom", "specter"] },
+  fairy: { message: "Whimsy, nature magic, ethereal play.", triggers: ["fairy", "fae", "tiny", "magic", "sprite"] },
+  troll: { message: "Undercurrent hostility, blockages.", triggers: ["troll", "bridge", "block", "mean"] },
+  gargoyle: { message: "Protector of hidden places, watcher of shadows.", triggers: ["gargoyle", "stone", "statue", "watcher", "guardian"] },
+  "mythical beast": { message: "Unknown power, hybrid force, archetypal chaos.", triggers: ["mythical", "mixed", "legend", "hybrid"] },
+  "sea monster": { message: "Deep emotional fears, submerged chaos.", triggers: ["sea monster", "leviathan", "kraken"] },
+
+  // Identity
+  face: { message: "Persona, identity, what is shown.", triggers: ["face", "expression", "visage"] },
+  profile: { message: "Perspective, side of self, incomplete view.", triggers: ["profile", "side"] },
+  mask: { message: "False self, protection, hidden emotion.", triggers: ["mask", "cover", "pretend", "hide", "disguise"] },
+  clown: { message: "Performance, hidden pain, emotional exaggeration.", triggers: ["clown", "jester", "smile", "fake", "performer"] },
+  witch: { message: "Powerful feminine, feared knowledge, archetypal outsider.", triggers: ["witch", "magic", "crone", "hag", "sorceress"] },
+  angel: { message: "Purity, divine messenger, protection.", triggers: ["angel", "halo", "divine", "pure"] },
+  demon: { message: "Temptation, inner shadow, power misused.", triggers: ["demon", "devil", "horn", "evil"] },
+  skull: { message: "Mortality, truth beneath appearance.", triggers: ["skull", "bone", "death", "head"] },
+  skeleton: { message: "Hidden truths, vulnerability, old structure.", triggers: ["skeleton", "bones", "rattle", "truth"] },
+  woman: { message: "Feminine essence, reflection, archetypal anima.", triggers: ["woman", "she", "feminine", "female", "lady"] },
+  man: { message: "Masculine presence, archetypal animus.", triggers: ["man", "he", "masculine", "male", "guy"] },
+  child: { message: "Innocence, vulnerability, beginning.", triggers: ["child", "young", "baby", "small", "kid"] },
+  "twin figures": { message: "Duality, mirror self, choice.", triggers: ["twin", "twins", "double", "duplicate"] },
+  "person in costume": { message: "Role-playing, hidden motives, performance self.", triggers: ["costume", "dress-up", "disguise", "play"] },
+
+  // Objects
+  lamp: { message: "Guidance, insight, inner light.", triggers: ["lamp", "lantern"] },
+  chandelier: { message: "Elegance, radiance, spiritual vision.", triggers: ["chandelier", "crystal", "hang"] },
+  fountain: { message: "Flow of emotion, cleansing, abundance.", triggers: ["fountain", "spray", "flow"] },
+  ornament: { message: "Adornment, ego, beauty or distraction.", triggers: ["ornament", "decoration", "sparkle", "glitter"] },
+  building: { message: "Structure of self, life foundation, stability.", triggers: ["building", "house", "structure", "architecture"] },
+  tower: { message: "Ambition, isolation, downfall or elevation.", triggers: ["tower", "high", "fall", "collapse", "tall"] }
 };
+
+// Wildcard oracle messages (when no symbol matches)
+const wildcardMessages = [
+  "You do not see the world as it is. You see the world as you are.",
+  "The wound is the place where the light enters you.",
+  "All things visible are born from the invisible.",
+  "Freedom begins the moment you stop seeking permission.",
+  "You are not looking for meaning—you are looking for resonance.",
+  "When you stop clinging to identity, the soul begins to speak.",
+  "To remember yourself is not to recall a fact, but to return to a frequency.",
+  "What you fear most is often the gateway to your freedom.",
+  "Even silence has a shape if you're willing to listen.",
+  "To transform is to remember your original shape.",
+  "Symbols are not answers. They are invitations.",
+  "Your longing is holy. Trace it back to its source.",
+  "The mystery is not something to be solved, but something to be entered.",
+  "There is no mirror more honest than what you project onto the unknown.",
+  "The soul does not speak in words—it speaks in symbols, sensations, and sudden knowing.",
+  "What you avoid contains the instructions for your becoming.",
+  "Awareness does not grow from knowing more, but from noticing more.",
+  "Sometimes what you call confusion is simply the mind being humbled by mystery.",
+  "If you knew how to interpret your own energy, you would need fewer explanations.",
+  "The further you go inward, the less language follows.",
+  "The unexamined life is not worth living. — Socrates",
+  "He who has a why to live can bear almost any how. — Friedrich Nietzsche",
+  "The only thing I know is that I know nothing. — Socrates",
+  "Man is condemned to be free. — Jean-Paul Sartre",
+  "Happiness depends upon ourselves. — Aristotle",
+  "No tree, it is said, can grow to heaven unless its roots reach down to hell. — Carl Jung",
+  "To be is to be perceived. — George Berkeley",
+  "Knowing others is intelligence; knowing yourself is true wisdom. — Lao Tzu",
+  "You must become the change you wish to see in the world. — Mahatma Gandhi",
+  "The mind is furnished with ideas by experience alone. — John Locke",
+  "The greatest wealth is to live content with little. — Plato",
+  "Things are not bad in themselves, but our opinions about things are. — Epictetus",
+  "Every man takes the limits of his own field of vision for the limits of the world. — Arthur Schopenhauer",
+  "Time is a moving image of eternity. — Plato",
+  "We suffer more in imagination than in reality. — Seneca"
+];
 
 function setup() {
   let canvas = createCanvas(windowWidth, min(windowHeight * 0.6, 800));
@@ -466,14 +579,26 @@ function generateOracleReading() {
     return;
   }
 
-  let oracleMessage = "This symbol lives in a secret shell. Let it speak again in another tide.";
+  let oracleMessage = null;
 
-  // Check for keyword matches
-  for (let keyword in symbolReadings) {
-    if (userInput.includes(keyword)) {
-      oracleMessage = symbolReadings[keyword];
-      break;
+  // Check for trigger word matches across all symbols
+  for (let symbolKey in symbolReadings) {
+    let symbol = symbolReadings[symbolKey];
+
+    // Check if any trigger word appears in user input
+    for (let trigger of symbol.triggers) {
+      if (userInput.includes(trigger.toLowerCase())) {
+        oracleMessage = symbol.message;
+        break;
+      }
     }
+
+    if (oracleMessage) break;
+  }
+
+  // If no symbol matched, use a random wildcard message
+  if (!oracleMessage) {
+    oracleMessage = random(wildcardMessages);
   }
 
   // Display oracle message
