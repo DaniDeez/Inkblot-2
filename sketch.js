@@ -228,11 +228,10 @@ function generateNewInkblot() {
       centerX: random(-width * 0.15, width * 0.15),
       centerY: random(-height * 0.25, height * 0.25),
       baseRadius: random(50, 160),
-      points: [],
-      holes: [] // Internal negative space
+      points: []
     };
 
-    // Generate main blob shape with Perlin noise and MORE negative space
+    // Generate main blob shape with Perlin noise for organic irregularity
     let numPoints = floor(random(25, 50));
     let noiseOffset = random(1000);
 
@@ -244,121 +243,20 @@ function generateNewInkblot() {
       let noiseVal2 = noise(cos(angle) * 5 + noiseOffset + 100, sin(angle) * 5 + noiseOffset + 100);
       let noiseVal3 = noise(cos(angle) * 10 + noiseOffset + 200, sin(angle) * 10 + noiseOffset + 200);
 
-      // Combine noise octaves for complex shape with MORE extreme variation
+      // Combine noise octaves for complex shape
       let radiusVariation = noiseVal1 * 0.4 + noiseVal2 * 0.4 + noiseVal3 * 0.2;
-
-      // Create deep indentations and gaps (more extreme radius changes)
-      let extremeNoise = noise(j * 0.05 + noiseOffset + 500);
-      let radiusMultiplier = extremeNoise < 0.3 ? 0.2 : (0.3 + radiusVariation * 1.5);
+      let radiusMultiplier = 0.5 + radiusVariation * 0.8;
 
       let radius = zone.baseRadius * radiusMultiplier;
 
       // Add angular distortion for lobes and folds
-      let angleDistortion = noise(j * 0.1 + noiseOffset + 300) * 0.5 - 0.25;
+      let angleDistortion = noise(j * 0.1 + noiseOffset + 300) * 0.3 - 0.15;
       let finalAngle = angle + angleDistortion;
 
       zone.points.push({
         x: cos(finalAngle) * radius,
         y: sin(finalAngle) * radius
       });
-    }
-
-    // Generate INTERNAL HOLES for negative space (90% chance per zone - much more common!)
-    if (random() > 0.1) {
-      let numHoles = floor(random(2, 5)); // More holes per zone
-      for (let h = 0; h < numHoles; h++) {
-        let holeType = random();
-
-        // Different types of abstract holes
-        if (holeType < 0.4) {
-          // Large organic blob-like hole
-          let hole = {
-            x: random(-zone.baseRadius * 0.5, zone.baseRadius * 0.5),
-            y: random(-zone.baseRadius * 0.5, zone.baseRadius * 0.5),
-            radius: random(25, 80), // Larger holes
-            points: [],
-            type: 'organic'
-          };
-
-          let holePoints = floor(random(8, 20));
-          let holeNoiseOffset = random(1000);
-
-          for (let hp = 0; hp < holePoints; hp++) {
-            let holeAngle = map(hp, 0, holePoints, 0, TWO_PI);
-            let holeNoise = noise(cos(holeAngle) * 2 + holeNoiseOffset, sin(holeAngle) * 2 + holeNoiseOffset);
-            let holeRadius = hole.radius * (0.4 + holeNoise * 1.0);
-
-            hole.points.push({
-              x: hole.x + cos(holeAngle) * holeRadius,
-              y: hole.y + sin(holeAngle) * holeRadius
-            });
-          }
-
-          zone.holes.push(hole);
-        } else if (holeType < 0.7) {
-          // Elongated slit-like hole (eye-like)
-          let hole = {
-            x: random(-zone.baseRadius * 0.4, zone.baseRadius * 0.4),
-            y: random(-zone.baseRadius * 0.4, zone.baseRadius * 0.4),
-            width: random(40, 100),
-            height: random(15, 40),
-            rotation: random(TWO_PI),
-            points: [],
-            type: 'slit'
-          };
-
-          let holePoints = floor(random(12, 20));
-          for (let hp = 0; hp < holePoints; hp++) {
-            let holeAngle = map(hp, 0, holePoints, 0, TWO_PI);
-            let xRad = hole.width * 0.5;
-            let yRad = hole.height * 0.5;
-
-            // Add irregularity
-            let irregularity = noise(hp * 0.3 + random(1000)) * 0.3;
-
-            let px = cos(holeAngle) * xRad * (1 + irregularity);
-            let py = sin(holeAngle) * yRad * (1 + irregularity);
-
-            // Rotate
-            let rx = px * cos(hole.rotation) - py * sin(hole.rotation);
-            let ry = px * sin(hole.rotation) + py * cos(hole.rotation);
-
-            hole.points.push({
-              x: hole.x + rx,
-              y: hole.y + ry
-            });
-          }
-
-          zone.holes.push(hole);
-        } else {
-          // Irregular abstract shape
-          let hole = {
-            x: random(-zone.baseRadius * 0.4, zone.baseRadius * 0.4),
-            y: random(-zone.baseRadius * 0.4, zone.baseRadius * 0.4),
-            radius: random(20, 60),
-            points: [],
-            type: 'abstract'
-          };
-
-          let holePoints = floor(random(6, 12));
-          let holeNoiseOffset = random(1000);
-
-          for (let hp = 0; hp < holePoints; hp++) {
-            let holeAngle = map(hp, 0, holePoints, 0, TWO_PI);
-
-            // Very irregular radius
-            let noiseVal = noise(cos(holeAngle) * 1.5 + holeNoiseOffset, sin(holeAngle) * 1.5 + holeNoiseOffset);
-            let holeRadius = hole.radius * (0.3 + noiseVal * 1.4);
-
-            hole.points.push({
-              x: hole.x + cos(holeAngle) * holeRadius,
-              y: hole.y + sin(holeAngle) * holeRadius
-            });
-          }
-
-          zone.holes.push(hole);
-        }
-      }
     }
 
     inkblotData.push(zone);
@@ -412,31 +310,7 @@ function drawHalfInkblot() {
     }
     endShape(CLOSE);
 
-    // Draw INTERNAL HOLES as negative space (cutouts)
     drawingContext.shadowBlur = 0;
-
-    // Use erase mode to cut holes out of the ink
-    erase(255, 255);
-    for (let hole of zone.holes) {
-      fill(255);
-      noStroke();
-
-      beginShape();
-      for (let i = 0; i < hole.points.length; i++) {
-        let pt = hole.points[i];
-        if (i === 0) {
-          vertex(pt.x, pt.y);
-        }
-        curveVertex(pt.x, pt.y);
-      }
-      // Close hole smoothly
-      let holeFirstPts = hole.points.slice(0, 3);
-      for (let pt of holeFirstPts) {
-        curveVertex(pt.x, pt.y);
-      }
-      endShape(CLOSE);
-    }
-    noErase();
 
     pop();
   }
