@@ -253,17 +253,14 @@ function generateNewInkblot() {
     inkblotData.push(zone);
   }
 
-  // SATELLITE SPLATTERS (half medium, half larger and more irregular)
+  // SATELLITE SPLATTERS (all large and irregular)
   for (let i = 0; i < numSatellites; i++) {
-    // Half of satellites are larger and more irregular
-    let isLargerSatellite = random() > 0.5;
-
     let zone = {
       centerX: random(-width * 0.25, width * 0.25), // Wide spread
       centerY: random(-height * 0.4, height * 0.4),
-      baseRadius: isLargerSatellite ? random(30, 65) : random(20, 45), // Larger or medium
+      baseRadius: random(30, 65), // All large and irregular
       points: [],
-      type: isLargerSatellite ? 'satellite_large' : 'satellite'
+      type: 'satellite_large'
     };
 
     generateBlobShape(zone);
