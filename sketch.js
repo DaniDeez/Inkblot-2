@@ -79,6 +79,9 @@ function setup() {
   document.getElementById('save-btn').addEventListener('click', saveVision);
   document.getElementById('reset-btn').addEventListener('click', resetToPhase1);
 
+  // Wire up New Inkblot button
+  document.getElementById('new-inkblot-btn').addEventListener('click', resetToPhase1);
+
   // Allow Enter key to submit
   document.getElementById('user-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
@@ -88,8 +91,8 @@ function setup() {
 }
 
 function draw() {
-  // Mother-of-pearl background
-  drawNacreousBackground();
+  // Clear canvas with transparency (rainbow background is now in CSS)
+  clear();
 
   if (phase === 1 && !inkblotFrozen) {
     // Animate inkblot
@@ -117,37 +120,7 @@ function draw() {
   }
 }
 
-function drawNacreousBackground() {
-  // Iridescent rainbow gradient background
-  // Use p5.js drawingContext to create smooth CSS-like gradient
-  let ctx = drawingContext;
-
-  // Create radial gradient for iridescent effect
-  let gradient = ctx.createLinearGradient(0, 0, width, height);
-
-  // Rainbow color stops with iridescent shimmer
-  gradient.addColorStop(0, '#FF6B9D');    // Pink
-  gradient.addColorStop(0.15, '#C44569'); // Rose
-  gradient.addColorStop(0.3, '#A55EEA');  // Purple
-  gradient.addColorStop(0.45, '#4E73F8'); // Blue
-  gradient.addColorStop(0.6, '#0FBCF9');  // Cyan
-  gradient.addColorStop(0.75, '#00D9C0'); // Turquoise
-  gradient.addColorStop(0.85, '#FFA801'); // Gold
-  gradient.addColorStop(1, '#FF6B9D');    // Pink (loop)
-
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-
-  // Add subtle shimmer overlay
-  noStroke();
-  for (let i = 0; i < 50; i++) {
-    let x = random(width);
-    let y = random(height);
-    let shimmer = color(255, 255, 255, random(10, 30));
-    fill(shimmer);
-    ellipse(x, y, random(3, 10));
-  }
-}
+// Background is now handled by CSS - no need for canvas background
 
 function drawMorphingInkblot() {
   push();

@@ -5,8 +5,17 @@
 }
 
 body {
-  background: #1a1a2e;
+  background: linear-gradient(135deg,
+    #FF6B9D 0%,
+    #C44569 15%,
+    #A55EEA 30%,
+    #4E73F8 45%,
+    #0FBCF9 60%,
+    #00D9C0 75%,
+    #FFA801 85%,
+    #FF6B9D 100%);
   background-attachment: fixed;
+  min-height: 100vh;
   font-family: 'Cormorant Garamond', serif;
   color: #ffffff;
   overflow-x: hidden;
@@ -195,6 +204,40 @@ body {
   transform: translateY(-2px);
 }
 
+/* New Inkblot Button - Top Right */
+.new-inkblot-btn {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1em;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(0, 217, 192, 0.6);
+  border-radius: 25px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 217, 192, 0.4),
+              0 4px 15px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 0 8px rgba(0, 217, 192, 0.8);
+  z-index: 1000;
+}
+
+.new-inkblot-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(0, 217, 192, 0.9);
+  box-shadow: 0 0 30px rgba(0, 217, 192, 0.7),
+              0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.new-inkblot-btn:active {
+  transform: translateY(0);
+}
+
 /* Footer */
 .oracle-footer {
   text-align: center;
@@ -221,5 +264,12 @@ body {
 
   .oracle-message {
     font-size: 1.2em;
+  }
+
+  .new-inkblot-btn {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.9em;
   }
 }
