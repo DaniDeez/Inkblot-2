@@ -108,20 +108,21 @@ function generateNewInkblot() {
   inkblotData = [];
 
   // Generate multiple organic blob zones with different characteristics
-  let numZones = floor(random(3, 6));
+  let numZones = floor(random(4, 7));
 
   for (let i = 0; i < numZones; i++) {
     let zone = {
       centerX: random(-width * 0.15, width * 0.15),
       centerY: random(-height * 0.25, height * 0.25),
-      baseRadius: random(60, 180),
+      baseRadius: random(50, 160),
       points: [],
       tendrils: [],
-      spatters: []
+      spatters: [],
+      holes: [] // Internal negative space
     };
 
-    // Generate main blob shape with Perlin noise
-    let numPoints = floor(random(20, 40));
+    // Generate main blob shape with Perlin noise and MORE negative space
+    let numPoints = floor(random(25, 50));
     let noiseOffset = random(1000);
 
     for (let j = 0; j < numPoints; j++) {
@@ -132,12 +133,17 @@ function generateNewInkblot() {
       let noiseVal2 = noise(cos(angle) * 5 + noiseOffset + 100, sin(angle) * 5 + noiseOffset + 100);
       let noiseVal3 = noise(cos(angle) * 10 + noiseOffset + 200, sin(angle) * 10 + noiseOffset + 200);
 
-      // Combine noise octaves for complex shape
-      let radiusVariation = noiseVal1 * 0.5 + noiseVal2 * 0.3 + noiseVal3 * 0.2;
-      let radius = zone.baseRadius * (0.4 + radiusVariation * 1.2);
+      // Combine noise octaves for complex shape with MORE extreme variation
+      let radiusVariation = noiseVal1 * 0.4 + noiseVal2 * 0.4 + noiseVal3 * 0.2;
+
+      // Create deep indentations and gaps (more extreme radius changes)
+      let extremeNoise = noise(j * 0.05 + noiseOffset + 500);
+      let radiusMultiplier = extremeNoise < 0.3 ? 0.2 : (0.3 + radiusVariation * 1.5);
+
+      let radius = zone.baseRadius * radiusMultiplier;
 
       // Add angular distortion for lobes and folds
-      let angleDistortion = noise(j * 0.1 + noiseOffset + 300) * 0.4 - 0.2;
+      let angleDistortion = noise(j * 0.1 + noiseOffset + 300) * 0.5 - 0.25;
       let finalAngle = angle + angleDistortion;
 
       zone.points.push({
@@ -146,14 +152,44 @@ function generateNewInkblot() {
       });
     }
 
-    // Generate tendrils/branches (some zones get them)
-    if (random() > 0.4) {
-      let numTendrils = floor(random(2, 5));
+    // Generate INTERNAL HOLES for negative space (40% chance per zone)
+    if (random() > 0.6) {
+      let numHoles = floor(random(1, 3));
+      for (let h = 0; h < numHoles; h++) {
+        let hole = {
+          x: random(-zone.baseRadius * 0.4, zone.baseRadius * 0.4),
+          y: random(-zone.baseRadius * 0.4, zone.baseRadius * 0.4),
+          radius: random(15, 50),
+          points: []
+        };
+
+        // Generate irregular hole shape
+        let holePoints = floor(random(8, 16));
+        let holeNoiseOffset = random(1000);
+
+        for (let hp = 0; hp < holePoints; hp++) {
+          let holeAngle = map(hp, 0, holePoints, 0, TWO_PI);
+          let holeNoise = noise(cos(holeAngle) * 3 + holeNoiseOffset, sin(holeAngle) * 3 + holeNoiseOffset);
+          let holeRadius = hole.radius * (0.5 + holeNoise * 0.8);
+
+          hole.points.push({
+            x: hole.x + cos(holeAngle) * holeRadius,
+            y: hole.y + sin(holeAngle) * holeRadius
+          });
+        }
+
+        zone.holes.push(hole);
+      }
+    }
+
+    // Generate tendrils/branches (more frequent, thinner)
+    if (random() > 0.3) {
+      let numTendrils = floor(random(2, 6));
       for (let t = 0; t < numTendrils; t++) {
         let tendril = {
           startAngle: random(TWO_PI),
-          length: random(40, 120),
-          thickness: random(8, 25),
+          length: random(30, 100),
+          thickness: random(5, 18),
           segments: []
         };
 
@@ -162,7 +198,7 @@ function generateNewInkblot() {
         let currentLength = 0;
 
         for (let s = 0; s < numSegments; s++) {
-          currentAngle += random(-0.5, 0.5);
+          currentAngle += random(-0.6, 0.6);
           let segmentLength = tendril.length / numSegments;
           currentLength += segmentLength;
 
@@ -177,14 +213,14 @@ function generateNewInkblot() {
       }
     }
 
-    // Generate ink spatters/bleeding effect
-    let numSpatters = floor(random(10, 30));
+    // Generate ink spatters/bleeding effect (more sparse)
+    let numSpatters = floor(random(15, 40));
     for (let s = 0; s < numSpatters; s++) {
       zone.spatters.push({
-        x: random(-zone.baseRadius * 1.3, zone.baseRadius * 1.3),
-        y: random(-zone.baseRadius * 1.3, zone.baseRadius * 1.3),
-        size: random(3, 15),
-        opacity: random(100, 255)
+        x: random(-zone.baseRadius * 1.5, zone.baseRadius * 1.5),
+        y: random(-zone.baseRadius * 1.5, zone.baseRadius * 1.5),
+        size: random(2, 12),
+        opacity: random(80, 200)
       });
     }
 
@@ -274,7 +310,32 @@ function drawHalfInkblot() {
       }
     }
 
+    // Draw INTERNAL HOLES as negative space (cutouts)
     drawingContext.shadowBlur = 0;
+
+    // Use erase mode to cut holes out of the ink
+    erase(255, 255);
+    for (let hole of zone.holes) {
+      fill(255);
+      noStroke();
+
+      beginShape();
+      for (let i = 0; i < hole.points.length; i++) {
+        let pt = hole.points[i];
+        if (i === 0) {
+          vertex(pt.x, pt.y);
+        }
+        curveVertex(pt.x, pt.y);
+      }
+      // Close hole smoothly
+      let holeFirstPts = hole.points.slice(0, 3);
+      for (let pt of holeFirstPts) {
+        curveVertex(pt.x, pt.y);
+      }
+      endShape(CLOSE);
+    }
+    noErase();
+
     pop();
   }
 }
