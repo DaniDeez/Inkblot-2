@@ -5,10 +5,10 @@
 }
 
 body {
-  background: linear-gradient(135deg, #FFF8F0 0%, #F8F1FF 50%, #FFEEF8 100%);
+  background: #1a1a2e;
   background-attachment: fixed;
   font-family: 'Cormorant Garamond', serif;
-  color: #4A4A4A;
+  color: #ffffff;
   overflow-x: hidden;
 }
 
@@ -24,9 +24,11 @@ body {
   font-family: 'Cinzel', serif;
   font-size: clamp(1.8em, 5vw, 2.5em);
   letter-spacing: 1px;
-  color: #F8F8FF;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6),
-               0 0 12px rgba(173, 223, 214, 0.3);
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 217, 192, 0.8),
+               0 0 20px rgba(0, 217, 192, 0.6),
+               0 0 30px rgba(0, 217, 192, 0.4),
+               0 0 40px rgba(0, 217, 192, 0.2);
   margin-bottom: 0.5rem;
 }
 
@@ -35,8 +37,9 @@ body {
   font-size: clamp(1.1em, 3vw, 1.4em);
   font-style: italic;
   color: #ffffff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4),
-               0 0 16px rgba(234, 218, 234, 0.3);
+  text-shadow: 0 0 10px rgba(0, 217, 192, 0.7),
+               0 0 20px rgba(0, 217, 192, 0.5),
+               0 0 30px rgba(0, 217, 192, 0.3);
 }
 
 /* Canvas Container */
@@ -72,9 +75,10 @@ body {
 .prompt-text {
   font-size: 1.6em;
   font-style: italic;
-  color: #5A5A6A;
+  color: #ffffff;
   margin-bottom: 1.5rem;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+  text-shadow: 0 0 8px rgba(0, 217, 192, 0.7),
+               0 0 16px rgba(0, 217, 192, 0.5);
 }
 
 .reflection-input {
@@ -134,9 +138,10 @@ body {
   padding: 2rem;
   font-size: 1.5em;
   font-family: 'Cormorant Garamond', serif;
-  color: #ADDFD6;
-  text-shadow: 0 0 10px rgba(173, 223, 214, 0.5),
-               0 0 20px rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 217, 192, 0.8),
+               0 0 20px rgba(0, 217, 192, 0.6),
+               0 0 30px rgba(0, 217, 192, 0.4);
   line-height: 1.6;
   opacity: 1;
   animation: fadeInShimmer 1.5s ease-in;
@@ -195,8 +200,9 @@ body {
   text-align: center;
   padding: 2rem;
   font-size: 0.9em;
-  color: #9A9AAA;
+  color: #ffffff;
   font-style: italic;
+  text-shadow: 0 0 8px rgba(0, 217, 192, 0.5);
 }
 
 /* Responsive adjustments */

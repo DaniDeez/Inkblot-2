@@ -118,33 +118,34 @@ function draw() {
 }
 
 function drawNacreousBackground() {
-  // Soft gradient with nacre shimmer effect
-  let c1 = color(255, 248, 240); // Cream
-  let c2 = color(248, 241, 255); // Pale lavender
-  let c3 = color(255, 238, 248); // Blush pink
+  // Iridescent rainbow gradient background
+  // Use p5.js drawingContext to create smooth CSS-like gradient
+  let ctx = drawingContext;
 
-  for (let y = 0; y < height; y++) {
-    let inter = map(y, 0, height, 0, 1);
-    let c;
+  // Create radial gradient for iridescent effect
+  let gradient = ctx.createLinearGradient(0, 0, width, height);
 
-    if (inter < 0.5) {
-      c = lerpColor(c1, c2, inter * 2);
-    } else {
-      c = lerpColor(c2, c3, (inter - 0.5) * 2);
-    }
+  // Rainbow color stops with iridescent shimmer
+  gradient.addColorStop(0, '#FF6B9D');    // Pink
+  gradient.addColorStop(0.15, '#C44569'); // Rose
+  gradient.addColorStop(0.3, '#A55EEA');  // Purple
+  gradient.addColorStop(0.45, '#4E73F8'); // Blue
+  gradient.addColorStop(0.6, '#0FBCF9');  // Cyan
+  gradient.addColorStop(0.75, '#00D9C0'); // Turquoise
+  gradient.addColorStop(0.85, '#FFA801'); // Gold
+  gradient.addColorStop(1, '#FF6B9D');    // Pink (loop)
 
-    stroke(c);
-    line(0, y, width, y);
-  }
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
 
-  // Subtle nacre shimmer
+  // Add subtle shimmer overlay
   noStroke();
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 50; i++) {
     let x = random(width);
     let y = random(height);
-    let shimmer = color(255, 255, 255, random(5, 20));
+    let shimmer = color(255, 255, 255, random(10, 30));
     fill(shimmer);
-    ellipse(x, y, random(2, 8));
+    ellipse(x, y, random(3, 10));
   }
 }
 
