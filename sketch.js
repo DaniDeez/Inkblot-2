@@ -1,17 +1,11 @@
 // ✧ PSYCHEFLUX ORACLE - THE LIVING MIRROR OF LIGHT ✧
-// Opaline Dreamshell Edition
+// Static Rorschach Inkblot Generator
 
 let phase = 1; // 1 = Living Mirror, 2 = Reflection
 let inkblotFrozen = false;
 let frozenImage = null;
 
-// Inkblot parameters
-let noiseOffsetX = 0;
-let noiseOffsetY = 1000;
-let noiseScale = 0.008;
-let timeOffset = 0;
-
-// Corner orbs
+// Corner sparkles
 let orbPulse = 0;
 
 // Freeze detection
@@ -19,9 +13,9 @@ let mouseHoldStart = 0;
 let freezeThreshold = 2000; // 2 seconds
 let isHolding = false;
 
-// Blob segments for organic complexity
-let blobSegments = [];
-const numSegments = 5;
+// Static inkblot data
+let inkblotData = [];
+let inkblotGenerated = false;
 
 // Symbolic readings dictionary
 const symbolReadings = {
@@ -62,17 +56,8 @@ function setup() {
   let canvas = createCanvas(windowWidth, min(windowHeight * 0.6, 800));
   canvas.parent('canvas-container');
 
-  // Initialize blob segments with random properties
-  for (let i = 0; i < numSegments; i++) {
-    blobSegments.push({
-      offsetX: random(1000),
-      offsetY: random(1000),
-      offsetTime: random(1000),
-      radiusBase: random(80, 150),
-      points: floor(random(6, 12)),
-      irregularity: random(0.3, 0.7)
-    });
-  }
+  // Generate initial inkblot
+  generateNewInkblot();
 
   // Wire up Phase 2 UI
   document.getElementById('submit-btn').addEventListener('click', generateOracleReading);
@@ -95,17 +80,14 @@ function draw() {
   clear();
 
   if (phase === 1 && !inkblotFrozen) {
-    // Animate inkblot
-    drawMorphingInkblot();
-
-    // Advance time for organic motion
-    timeOffset += 0.003;
+    // Draw static inkblot
+    drawStaticInkblot();
   } else if (inkblotFrozen && frozenImage) {
     // Display frozen inkblot
     image(frozenImage, 0, 0, width, height);
   }
 
-  // Draw corner spirit pearls
+  // Draw corner sparkles
   drawCornerOrbs();
 
   // Handle freeze gesture
@@ -120,72 +102,181 @@ function draw() {
   }
 }
 
-// Background is now handled by CSS - no need for canvas background
+// ===== INKBLOT GENERATION SYSTEM =====
 
-function drawMorphingInkblot() {
+function generateNewInkblot() {
+  inkblotData = [];
+
+  // Generate multiple organic blob zones with different characteristics
+  let numZones = floor(random(3, 6));
+
+  for (let i = 0; i < numZones; i++) {
+    let zone = {
+      centerX: random(-width * 0.15, width * 0.15),
+      centerY: random(-height * 0.25, height * 0.25),
+      baseRadius: random(60, 180),
+      points: [],
+      tendrils: [],
+      spatters: []
+    };
+
+    // Generate main blob shape with Perlin noise
+    let numPoints = floor(random(20, 40));
+    let noiseOffset = random(1000);
+
+    for (let j = 0; j < numPoints; j++) {
+      let angle = map(j, 0, numPoints, 0, TWO_PI);
+
+      // Multi-octave Perlin noise for organic irregularity
+      let noiseVal1 = noise(cos(angle) * 2 + noiseOffset, sin(angle) * 2 + noiseOffset);
+      let noiseVal2 = noise(cos(angle) * 5 + noiseOffset + 100, sin(angle) * 5 + noiseOffset + 100);
+      let noiseVal3 = noise(cos(angle) * 10 + noiseOffset + 200, sin(angle) * 10 + noiseOffset + 200);
+
+      // Combine noise octaves for complex shape
+      let radiusVariation = noiseVal1 * 0.5 + noiseVal2 * 0.3 + noiseVal3 * 0.2;
+      let radius = zone.baseRadius * (0.4 + radiusVariation * 1.2);
+
+      // Add angular distortion for lobes and folds
+      let angleDistortion = noise(j * 0.1 + noiseOffset + 300) * 0.4 - 0.2;
+      let finalAngle = angle + angleDistortion;
+
+      zone.points.push({
+        x: cos(finalAngle) * radius,
+        y: sin(finalAngle) * radius
+      });
+    }
+
+    // Generate tendrils/branches (some zones get them)
+    if (random() > 0.4) {
+      let numTendrils = floor(random(2, 5));
+      for (let t = 0; t < numTendrils; t++) {
+        let tendril = {
+          startAngle: random(TWO_PI),
+          length: random(40, 120),
+          thickness: random(8, 25),
+          segments: []
+        };
+
+        let numSegments = floor(random(5, 12));
+        let currentAngle = tendril.startAngle;
+        let currentLength = 0;
+
+        for (let s = 0; s < numSegments; s++) {
+          currentAngle += random(-0.5, 0.5);
+          let segmentLength = tendril.length / numSegments;
+          currentLength += segmentLength;
+
+          tendril.segments.push({
+            x: cos(currentAngle) * currentLength,
+            y: sin(currentAngle) * currentLength,
+            thickness: tendril.thickness * (1 - s / numSegments)
+          });
+        }
+
+        zone.tendrils.push(tendril);
+      }
+    }
+
+    // Generate ink spatters/bleeding effect
+    let numSpatters = floor(random(10, 30));
+    for (let s = 0; s < numSpatters; s++) {
+      zone.spatters.push({
+        x: random(-zone.baseRadius * 1.3, zone.baseRadius * 1.3),
+        y: random(-zone.baseRadius * 1.3, zone.baseRadius * 1.3),
+        size: random(3, 15),
+        opacity: random(100, 255)
+      });
+    }
+
+    inkblotData.push(zone);
+  }
+
+  inkblotGenerated = true;
+}
+
+function drawStaticInkblot() {
+  if (!inkblotGenerated) return;
+
   push();
   translate(width / 2, height / 2);
 
-  // Glow effect setup
-  drawingContext.shadowBlur = 20;
-  drawingContext.shadowColor = 'rgba(173, 223, 214, 0.6)';
+  // Draw left half and mirror to right
+  drawHalfInkblot();
 
-  // Draw multiple blob segments for complexity
-  for (let segment of blobSegments) {
-    drawSymmetricalBlob(segment);
-  }
-
-  drawingContext.shadowBlur = 0;
-  pop();
-}
-
-function drawSymmetricalBlob(segment) {
-  // Left side
-  drawOrganicBlob(segment, 1);
-
-  // Right side (mirrored)
+  // Mirror to right side
   push();
   scale(-1, 1);
-  drawOrganicBlob(segment, 1);
+  drawHalfInkblot();
+  pop();
+
   pop();
 }
 
-function drawOrganicBlob(segment, side) {
-  let points = segment.points;
-  let radiusBase = segment.radiusBase;
+function drawHalfInkblot() {
+  for (let zone of inkblotData) {
+    push();
+    translate(zone.centerX, zone.centerY);
 
-  // Alternate colors for variation
-  let inkColor1 = color(173, 223, 214, 180); // Seafoam green
-  let inkColor2 = color(234, 218, 234, 180); // Lilac
+    // Draw spatters first (background layer)
+    for (let spatter of zone.spatters) {
+      fill(0, spatter.opacity);
+      noStroke();
+      ellipse(spatter.x, spatter.y, spatter.size);
+    }
 
-  let c = lerpColor(inkColor1, inkColor2, noise(segment.offsetTime + timeOffset * 10));
-  fill(c);
-  noStroke();
+    // Draw main blob shape with soft edges
+    drawingContext.shadowBlur = 8;
+    drawingContext.shadowColor = 'rgba(0, 0, 0, 0.4)';
 
-  beginShape();
-  for (let i = 0; i <= points; i++) {
-    let angle = map(i, 0, points, 0, TWO_PI);
+    fill(0);
+    noStroke();
 
-    // Use Perlin noise to create organic, flowing edges
-    let noiseVal = noise(
-      cos(angle) * 0.5 + segment.offsetX + timeOffset,
-      sin(angle) * 0.5 + segment.offsetY + timeOffset,
-      segment.offsetTime + timeOffset
-    );
+    beginShape();
+    for (let i = 0; i < zone.points.length; i++) {
+      let pt = zone.points[i];
+      if (i === 0) {
+        vertex(pt.x, pt.y);
+      }
+      curveVertex(pt.x, pt.y);
+    }
+    // Close the shape smoothly
+    let firstPts = zone.points.slice(0, 3);
+    for (let pt of firstPts) {
+      curveVertex(pt.x, pt.y);
+    }
+    endShape(CLOSE);
 
-    // Add irregularity and movement
-    let radius = radiusBase * (0.6 + noiseVal * segment.irregularity);
+    // Draw tendrils
+    for (let tendril of zone.tendrils) {
+      let startPoint = zone.points[floor(tendril.startAngle / TWO_PI * zone.points.length)];
 
-    // Create lobes and tentacles
-    let angleNoise = noise(segment.offsetX + i * 0.1, timeOffset * 2);
-    let finalAngle = angle + angleNoise * 0.3;
+      for (let i = 0; i < tendril.segments.length; i++) {
+        let seg = tendril.segments[i];
+        fill(0, 200);
+        noStroke();
 
-    let x = cos(finalAngle) * radius;
-    let y = sin(finalAngle) * radius;
+        let x = startPoint.x + seg.x;
+        let y = startPoint.y + seg.y;
+        ellipse(x, y, seg.thickness);
 
-    curveVertex(x, y);
+        // Add texture to tendrils
+        if (i > 0) {
+          let prevSeg = tendril.segments[i - 1];
+          strokeWeight(seg.thickness * 0.8);
+          stroke(0, 220);
+          line(
+            startPoint.x + prevSeg.x,
+            startPoint.y + prevSeg.y,
+            x,
+            y
+          );
+        }
+      }
+    }
+
+    drawingContext.shadowBlur = 0;
+    pop();
   }
-  endShape(CLOSE);
 }
 
 function drawCornerOrbs() {
@@ -364,7 +455,6 @@ function resetToPhase1() {
   phase = 1;
   inkblotFrozen = false;
   frozenImage = null;
-  timeOffset = random(1000); // New variation
 
   // Hide Phase 2 UI
   document.getElementById('reflection-interface').classList.add('hidden');
@@ -374,20 +464,14 @@ function resetToPhase1() {
   // Clear input
   document.getElementById('user-input').value = '';
 
-  // Reinitialize blob segments for fresh patterns
-  blobSegments = [];
-  for (let i = 0; i < numSegments; i++) {
-    blobSegments.push({
-      offsetX: random(1000),
-      offsetY: random(1000),
-      offsetTime: random(1000),
-      radiusBase: random(80, 150),
-      points: floor(random(6, 12)),
-      irregularity: random(0.3, 0.7)
-    });
-  }
+  // Generate new inkblot
+  generateNewInkblot();
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, min(windowHeight * 0.6, 800));
+  // Regenerate inkblot for new canvas size
+  if (inkblotGenerated && !inkblotFrozen) {
+    generateNewInkblot();
+  }
 }
