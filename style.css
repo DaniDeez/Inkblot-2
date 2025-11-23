@@ -1,0 +1,219 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #FFF8F0 0%, #F8F1FF 50%, #FFEEF8 100%);
+  background-attachment: fixed;
+  font-family: 'Cormorant Garamond', serif;
+  color: #4A4A4A;
+  overflow-x: hidden;
+}
+
+/* Header Styling */
+.oracle-header {
+  text-align: center;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
+  padding: 0 1rem;
+}
+
+.oracle-header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.8em, 5vw, 2.5em);
+  letter-spacing: 1px;
+  color: #F8F8FF;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6),
+               0 0 12px rgba(173, 223, 214, 0.3);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.1em, 3vw, 1.4em);
+  font-style: italic;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4),
+               0 0 16px rgba(234, 218, 234, 0.3);
+}
+
+/* Canvas Container */
+#canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 100vw;
+}
+
+/* Reflection Interface */
+#reflection-interface {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.8s ease-in;
+}
+
+#reflection-interface.hidden {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
+}
+
+.prompt-container {
+  margin-bottom: 2rem;
+}
+
+.prompt-text {
+  font-size: 1.6em;
+  font-style: italic;
+  color: #5A5A6A;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+}
+
+.reflection-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1em;
+  font-family: 'Cormorant Garamond', serif;
+  border: 2px solid #ADDFD6;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #4A4A4A;
+  box-shadow: 0 0 12px rgba(173, 223, 214, 0.3),
+              inset 0 0 8px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.reflection-input:focus {
+  border-color: #EADAEA;
+  box-shadow: 0 0 20px rgba(234, 218, 234, 0.5),
+              inset 0 0 12px rgba(255, 255, 255, 0.7);
+}
+
+.reflection-input::placeholder {
+  color: #A0A0B0;
+  font-style: italic;
+}
+
+.submit-button, .save-button, .reset-button {
+  margin-top: 1.5rem;
+  padding: 0.8rem 2rem;
+  font-size: 1.2em;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #ADDFD6 0%, #EADAEA 100%);
+  color: #4A4A4A;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(173, 223, 214, 0.6),
+              0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Oracle Message */
+.oracle-message {
+  margin-top: 2rem;
+  padding: 2rem;
+  font-size: 1.5em;
+  font-family: 'Cormorant Garamond', serif;
+  color: #ADDFD6;
+  text-shadow: 0 0 10px rgba(173, 223, 214, 0.5),
+               0 0 20px rgba(255, 255, 255, 0.3);
+  line-height: 1.6;
+  opacity: 1;
+  animation: fadeInShimmer 1.5s ease-in;
+}
+
+.oracle-message.hidden {
+  display: none;
+}
+
+@keyframes fadeInShimmer {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons.hidden {
+  display: none;
+}
+
+.save-button {
+  background: linear-gradient(135deg, #F8F8FF 0%, #EADAEA 100%);
+  color: #4A4A4A;
+}
+
+.save-button:hover {
+  box-shadow: 0 0 25px rgba(234, 218, 234, 0.6);
+  transform: translateY(-2px);
+}
+
+.reset-button {
+  background: linear-gradient(135deg, #ADDFD6 0%, #A0D8E0 100%);
+  color: #4A4A4A;
+}
+
+.reset-button:hover {
+  box-shadow: 0 0 25px rgba(173, 223, 214, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Footer */
+.oracle-footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9em;
+  color: #9A9AAA;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .oracle-header h1 {
+    font-size: 1.8em;
+  }
+
+  .subtitle {
+    font-size: 1.1em;
+  }
+
+  #reflection-interface {
+    padding: 1rem;
+  }
+
+  .oracle-message {
+    font-size: 1.2em;
+  }
+}
