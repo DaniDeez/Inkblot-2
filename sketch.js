@@ -220,49 +220,98 @@ function draw() {
 function generateNewInkblot() {
   inkblotData = [];
 
-  // Generate multiple organic blob zones with different characteristics
-  let numZones = floor(random(4, 7));
+  // Generate main zones with varied sizes (like real Rorschach inkblots)
+  let numMainZones = floor(random(2, 4)); // Fewer large zones
+  let numSecondaryZones = floor(random(2, 4)); // Medium zones
+  let numSatellites = floor(random(8, 15)); // Small satellite splatters
 
-  for (let i = 0; i < numZones; i++) {
+  // MAIN LARGE ZONES (central forms)
+  for (let i = 0; i < numMainZones; i++) {
     let zone = {
-      centerX: random(-width * 0.15, width * 0.15),
-      centerY: random(-height * 0.25, height * 0.25),
-      baseRadius: random(50, 160),
-      points: []
+      centerX: random(-width * 0.08, width * 0.08), // Closer to center
+      centerY: random(-height * 0.3, height * 0.3), // Spread vertically
+      baseRadius: random(80, 200), // Large
+      points: [],
+      type: 'main'
     };
 
-    // Generate main blob shape with Perlin noise for organic irregularity
-    let numPoints = floor(random(25, 50));
-    let noiseOffset = random(1000);
+    generateBlobShape(zone);
+    inkblotData.push(zone);
+  }
 
-    for (let j = 0; j < numPoints; j++) {
-      let angle = map(j, 0, numPoints, 0, TWO_PI);
+  // SECONDARY MEDIUM ZONES
+  for (let i = 0; i < numSecondaryZones; i++) {
+    let zone = {
+      centerX: random(-width * 0.2, width * 0.2), // More spread
+      centerY: random(-height * 0.35, height * 0.35),
+      baseRadius: random(40, 90), // Medium
+      points: [],
+      type: 'secondary'
+    };
 
-      // Multi-octave Perlin noise for organic irregularity
-      let noiseVal1 = noise(cos(angle) * 2 + noiseOffset, sin(angle) * 2 + noiseOffset);
-      let noiseVal2 = noise(cos(angle) * 5 + noiseOffset + 100, sin(angle) * 5 + noiseOffset + 100);
-      let noiseVal3 = noise(cos(angle) * 10 + noiseOffset + 200, sin(angle) * 10 + noiseOffset + 200);
+    generateBlobShape(zone);
+    inkblotData.push(zone);
+  }
 
-      // Combine noise octaves for complex shape
-      let radiusVariation = noiseVal1 * 0.4 + noiseVal2 * 0.4 + noiseVal3 * 0.2;
-      let radiusMultiplier = 0.5 + radiusVariation * 0.8;
+  // SMALL SATELLITE SPLATTERS
+  for (let i = 0; i < numSatellites; i++) {
+    let zone = {
+      centerX: random(-width * 0.25, width * 0.25), // Wide spread
+      centerY: random(-height * 0.4, height * 0.4),
+      baseRadius: random(8, 30), // Small
+      points: [],
+      type: 'satellite'
+    };
 
-      let radius = zone.baseRadius * radiusMultiplier;
-
-      // Add angular distortion for lobes and folds
-      let angleDistortion = noise(j * 0.1 + noiseOffset + 300) * 0.3 - 0.15;
-      let finalAngle = angle + angleDistortion;
-
-      zone.points.push({
-        x: cos(finalAngle) * radius,
-        y: sin(finalAngle) * radius
-      });
-    }
-
+    generateBlobShape(zone);
     inkblotData.push(zone);
   }
 
   inkblotGenerated = true;
+}
+
+function generateBlobShape(zone) {
+  // Generate blob shape with extreme Perlin noise variation for irregular edges
+  let numPoints = zone.type === 'satellite' ? floor(random(6, 12)) : floor(random(20, 40));
+  let noiseOffset = random(1000);
+
+  for (let j = 0; j < numPoints; j++) {
+    let angle = map(j, 0, numPoints, 0, TWO_PI);
+
+    // Multi-octave Perlin noise for organic irregularity
+    let noiseVal1 = noise(cos(angle) * 2 + noiseOffset, sin(angle) * 2 + noiseOffset);
+    let noiseVal2 = noise(cos(angle) * 5 + noiseOffset + 100, sin(angle) * 5 + noiseOffset + 100);
+    let noiseVal3 = noise(cos(angle) * 10 + noiseOffset + 200, sin(angle) * 10 + noiseOffset + 200);
+
+    // Combine noise octaves for complex shape with EXTREME variation
+    let radiusVariation = noiseVal1 * 0.3 + noiseVal2 * 0.4 + noiseVal3 * 0.3;
+
+    // Create sharp protrusions and deep indentations (0.2 to 1.5 range)
+    let extremeNoise = noise(j * 0.08 + noiseOffset + 500);
+    let radiusMultiplier;
+
+    if (extremeNoise < 0.2) {
+      // Deep indentation
+      radiusMultiplier = 0.2 + radiusVariation * 0.3;
+    } else if (extremeNoise > 0.8) {
+      // Sharp protrusion
+      radiusMultiplier = 1.0 + radiusVariation * 0.8;
+    } else {
+      // Normal variation
+      radiusMultiplier = 0.4 + radiusVariation * 0.9;
+    }
+
+    let radius = zone.baseRadius * radiusMultiplier;
+
+    // Add angular distortion for lobes and organic curves
+    let angleDistortion = noise(j * 0.15 + noiseOffset + 300) * 0.6 - 0.3;
+    let finalAngle = angle + angleDistortion;
+
+    zone.points.push({
+      x: cos(finalAngle) * radius,
+      y: sin(finalAngle) * radius
+    });
+  }
 }
 
 function drawStaticInkblot() {
