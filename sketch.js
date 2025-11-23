@@ -253,7 +253,7 @@ function generateNewInkblot() {
     inkblotData.push(zone);
   }
 
-  // SMALL SATELLITE SPLATTERS (half small, half larger and more irregular)
+  // SATELLITE SPLATTERS (half medium, half larger and more irregular)
   for (let i = 0; i < numSatellites; i++) {
     // Half of satellites are larger and more irregular
     let isLargerSatellite = random() > 0.5;
@@ -261,7 +261,7 @@ function generateNewInkblot() {
     let zone = {
       centerX: random(-width * 0.25, width * 0.25), // Wide spread
       centerY: random(-height * 0.4, height * 0.4),
-      baseRadius: isLargerSatellite ? random(30, 65) : random(8, 30), // Larger or small
+      baseRadius: isLargerSatellite ? random(30, 65) : random(20, 45), // Larger or medium
       points: [],
       type: isLargerSatellite ? 'satellite_large' : 'satellite'
     };
