@@ -365,17 +365,25 @@
                 this.noiseOffsetY = Math.random() * 1000;
                 this.noiseScale = 0.002 + Math.random() * 0.003;
 
-                // Complex organic parameters for dynamic abstract patterns
+                // Complex organic parameters for chaotic unpredictable patterns
                 this.shapeNoiseOffset = Math.random() * 1000;
                 this.shapeNoiseOffset2 = Math.random() * 1000 + 500;
+                this.shapeNoiseOffset3 = Math.random() * 1000 + 1000; // Third chaos layer
 
-                // High complexity for wild abstract Rorschach features
-                this.shapeComplexity = 6 + Math.floor(Math.random() * 6); // 6-11 dramatic features
-                this.shapeComplexity2 = 10 + Math.floor(Math.random() * 8); // 10-17 abstract detail
+                // Extreme complexity for unpredictable chaos
+                this.shapeComplexity = 8 + Math.floor(Math.random() * 10); // 8-17 chaotic features
+                this.shapeComplexity2 = 12 + Math.floor(Math.random() * 12); // 12-23 detail chaos
+                this.shapeComplexity3 = 18 + Math.floor(Math.random() * 15); // 18-32 micro-chaos
 
-                // Strong irregularity for dynamic abstract patterns
-                this.irregularityAmount = 0.4 + Math.random() * 0.5; // 40-90% wild variation
-                this.irregularityAmount2 = 0.25 + Math.random() * 0.35; // 25-60% abstract detail
+                // Extreme irregularity for unpredictable abstract chaos
+                this.irregularityAmount = 0.5 + Math.random() * 0.7; // 50-120% chaotic variation
+                this.irregularityAmount2 = 0.3 + Math.random() * 0.5; // 30-80% detail chaos
+                this.irregularityAmount3 = 0.2 + Math.random() * 0.4; // 20-60% micro-chaos
+
+                // Random angular offsets for unpredictable feature placement
+                this.angularOffset1 = Math.random() * Math.PI * 2;
+                this.angularOffset2 = Math.random() * Math.PI * 2;
+                this.angularOffset3 = Math.random() * Math.PI * 2;
 
                 // Fast dynamic morphing for abstract patterns
                 this.phase = Math.random() * Math.PI * 2;
@@ -585,36 +593,54 @@
                         const dy = y - (blob.y * scale);
                         const dist = Math.sqrt(dx * dx + dy * dy);
 
-                        // Organic shape deformation - optimized for performance
+                        // Chaotic unpredictable shape deformation with triple-layer noise
                         const angle = Math.atan2(dy, dx);
 
-                        // Layer 1: Primary organic protrusions
-                        const shape1X = Math.cos(angle * blob.shapeComplexity) * 0.1;
-                        const shape1Y = Math.sin(angle * blob.shapeComplexity) * 0.1;
+                        // Layer 1: Primary chaotic features with random angular offset
+                        const angle1 = angle * blob.shapeComplexity + blob.angularOffset1;
+                        const shape1X = Math.cos(angle1) * 0.08;
+                        const shape1Y = Math.sin(angle1) * 0.08;
                         const shapeNoise1 = organicNoise(
                             shape1X + blob.shapeNoiseOffset,
-                            shape1Y + blob.shapeNoiseOffset + time * 0.00006
+                            shape1Y + blob.shapeNoiseOffset + time * 0.00008
                         );
 
-                        // Layer 2: Secondary organic detail
-                        const shape2X = Math.cos(angle * blob.shapeComplexity2) * 0.12;
-                        const shape2Y = Math.sin(angle * blob.shapeComplexity2) * 0.12;
+                        // Layer 2: Secondary chaotic detail with offset
+                        const angle2 = angle * blob.shapeComplexity2 + blob.angularOffset2;
+                        const shape2X = Math.cos(angle2) * 0.1;
+                        const shape2Y = Math.sin(angle2) * 0.1;
                         const shapeNoise2 = organicNoise(
                             shape2X + blob.shapeNoiseOffset2,
-                            shape2Y + blob.shapeNoiseOffset2 + time * 0.00009,
+                            shape2Y + blob.shapeNoiseOffset2 + time * 0.00012,
                             200
                         );
 
-                        // Combine layers for dramatic abstract variation
+                        // Layer 3: Micro-chaos for extreme unpredictability
+                        const angle3 = angle * blob.shapeComplexity3 + blob.angularOffset3;
+                        const shape3X = Math.cos(angle3) * 0.12;
+                        const shape3Y = Math.sin(angle3) * 0.12;
+                        const shapeNoise3 = organicNoise(
+                            shape3X + blob.shapeNoiseOffset3,
+                            shape3Y + blob.shapeNoiseOffset3 + time * 0.00015,
+                            400
+                        );
+
+                        // Add random time-varying mutations for chaos
+                        const timeChaos = Math.sin(time * 0.0003 + blob.shapeNoiseOffset) * 0.5 + 0.5;
+                        const randomSpike = noise(angle * 50 + time * 0.0001, blob.shapeNoiseOffset);
+
+                        // Combine all chaos layers
                         const layer1 = (shapeNoise1 - 0.5) * blob.irregularityAmount;
                         const layer2 = (shapeNoise2 - 0.5) * blob.irregularityAmount2;
+                        const layer3 = (shapeNoise3 - 0.5) * blob.irregularityAmount3;
+                        const mutation = (randomSpike - 0.5) * timeChaos * 0.6;
 
-                        const totalVariation = layer1 + layer2;
-                        const radiusVariation = 1.0 + totalVariation * 2.0; // Strong variation for abstract shapes
+                        const totalVariation = layer1 + layer2 + layer3 + mutation;
+                        const radiusVariation = 1.0 + totalVariation * 3.0; // Extreme chaos multiplier
 
-                        // Wide bounds for dramatic abstract protrusions
+                        // Very wide bounds for extreme unpredictable protrusions
                         const scaledRadius = blob.radius * scale;
-                        const effectiveRadius = Math.max(scaledRadius * 0.4, Math.min(scaledRadius * 1.8, scaledRadius * radiusVariation));
+                        const effectiveRadius = Math.max(scaledRadius * 0.2, Math.min(scaledRadius * 2.5, scaledRadius * radiusVariation));
 
                         const distSq = dist * dist;
 
