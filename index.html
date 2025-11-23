@@ -256,6 +256,8 @@
         let lowResParchment = null; // Cache for low-res parchment
         let tempCanvas = null; // Reusable temp canvas for metaball rendering
         let tempCtx = null;
+        let currentGradientColor = { h: 0, s: 70, l: 50 }; // HSL color
+        let frozenGradientColor = null; // Frozen gradient color for reading
 
         function resizeCanvas() {
             width = canvas.width = window.innerWidth;
@@ -774,6 +776,35 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
+        function drawGlowingGradient(time) {
+            // Animate the gradient color through hue spectrum
+            currentGradientColor.h = (time * 0.02) % 360; // Full spectrum cycle
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const maxRadius = Math.max(width, height) * 0.6;
+
+            // Create radial gradient
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, maxRadius
+            );
+
+            // Create glowing effect with multiple color stops
+            const h = currentGradientColor.h;
+            const innerColor = `hsla(${h}, 80%, 60%, 0.4)`;
+            const midColor = `hsla(${h}, 70%, 50%, 0.2)`;
+            const outerColor = `hsla(${h}, 60%, 40%, 0)`;
+
+            gradient.addColorStop(0, innerColor);
+            gradient.addColorStop(0.5, midColor);
+            gradient.addColorStop(1, outerColor);
+
+            // Draw gradient over parchment
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+
         function animate(time) {
             if (isFrozen) return;
 
@@ -784,6 +815,9 @@
             } else {
                 ctx.putImageData(parchmentBackground, 0, 0);
             }
+
+            // Draw animated glowing gradient
+            drawGlowingGradient(time);
 
             blobs.forEach(blob => blob.update(time));
             drawMetaball(time);
@@ -815,42 +849,49 @@
             requestAnimationFrame(animate);
         }
 
+        function hslToRgb(h, s, l) {
+            s /= 100;
+            l /= 100;
+            const k = n => (n + h / 30) % 12;
+            const a = s * Math.min(l, 1 - l);
+            const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+            return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
+        }
+
         function analyzeColors() {
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            let totalR = 0, totalG = 0, totalB = 0, count = 0;
-
-            for (let i = 0; i < data.length; i += 4) {
-                if (data[i + 3] > 128) {
-                    totalR += data[i];
-                    totalG += data[i + 1];
-                    totalB += data[i + 2];
-                    count++;
-                }
+            // Use the frozen gradient color
+            if (frozenGradientColor) {
+                const [r, g, b] = hslToRgb(
+                    frozenGradientColor.h,
+                    frozenGradientColor.s,
+                    frozenGradientColor.l
+                );
+                const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+                return { r, g, b, hex };
             }
 
-            if (count === 0) {
-                return { r: 10, g: 10, b: 10, hex: '#0a0a0a' };
-            }
-
-            const r = Math.round(totalR / count);
-            const g = Math.round(totalG / count);
-            const b = Math.round(totalB / count);
-            const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
-
-            return { r, g, b, hex };
+            // Fallback to black if no frozen color
+            return { r: 10, g: 10, b: 10, hex: '#0a0a0a' };
         }
 
         function getColorMeaning(color) {
-            const meanings = {
-                black: "The void, the unconscious, mystery, depth, ancestral wisdom, the shadow self, introspection, and transformation through darkness.",
-                dark: "Deep contemplation, hidden truths, the liminal space between knowing and unknowing, ancestral memories, and sacred silence."
-            };
+            // Get hue from frozen gradient color for more specific meanings
+            if (frozenGradientColor) {
+                const h = frozenGradientColor.h;
 
-            if (color.r < 50 && color.g < 50 && color.b < 50) {
-                return meanings.black;
+                if (h >= 0 && h < 30) return "Red: Passion, vitality, primal energy. The fire of life burns within you, calling forth courage and transformation.";
+                if (h >= 30 && h < 60) return "Orange: Creativity, enthusiasm, joy. Your spirit dances with possibility and warmth radiates from your core.";
+                if (h >= 60 && h < 90) return "Yellow: Illumination, intellect, clarity. The light of awareness shines through the darkness, revealing hidden wisdom.";
+                if (h >= 90 && h < 150) return "Green: Growth, renewal, balance. Life flows through you like spring returning after winter's sleep.";
+                if (h >= 150 && h < 210) return "Cyan: Communication, truth, flow. Your voice carries the wisdom of deep waters and endless skies.";
+                if (h >= 210 && h < 270) return "Blue: Depth, intuition, serenity. The infinite ocean of consciousness opens before you.";
+                if (h >= 270 && h < 300) return "Purple: Mystery, spirituality, transformation. You walk between worlds, seeing what others cannot see.";
+                if (h >= 300 && h < 330) return "Magenta: Magic, divine union, transcendence. The sacred marriage of opposites births new reality.";
+                return "Rose: Love, compassion, the heart's truth. You are the bridge between earth and heaven, matter and spirit.";
             }
-            return meanings.dark;
+
+            // Fallback for black
+            return "The void, the unconscious, mystery, depth, ancestral wisdom, the shadow self, introspection, and transformation through darkness.";
         }
 
         const oracleDict = {
@@ -992,8 +1033,9 @@
 
         canvas.addEventListener('click', () => {
             if (!isFrozen) {
-                // Freeze animation and show interpretation panel
+                // Freeze animation and capture gradient color
                 isFrozen = true;
+                frozenGradientColor = { ...currentGradientColor };
                 interpretationPanel.classList.add('visible');
                 visionInput.focus();
             }
