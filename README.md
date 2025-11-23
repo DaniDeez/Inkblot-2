@@ -1,8 +1,8 @@
 # 🕊️ Psycheflux Oracle - The Living Mirror of Light
 
-*A Two-Phase Oracle Reflection Ritual in p5.js – Opaline Dreamshell Edition*
+*A Two-Phase Oracle Reflection Ritual in p5.js*
 
-A nacreous ritual space for symbolic emergence, dream-truths, and soft intuitive reflection.
+A ritual space for symbolic emergence.
 
 ## ✧ About
 
@@ -69,7 +69,7 @@ Each symbol carries its own oracle message about transformation, wisdom, and inn
 
 ## 📜 Credits
 
-**Opaline Dreamshell Edition** - A ritual space for symbolic emergence and dream-truths.
+A ritual space for symbolic emergence.
 
 Developed with intention, mystery, and reverence for the symbols that choose to appear.
 
