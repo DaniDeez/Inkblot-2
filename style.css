@@ -238,6 +238,23 @@ body {
   transform: translateY(0);
 }
 
+/* Instructions */
+.instructions {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  margin-top: 2rem;
+}
+
+.instructions p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2em;
+  font-style: italic;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0, 217, 192, 0.7),
+               0 0 16px rgba(0, 217, 192, 0.5);
+  letter-spacing: 0.5px;
+}
+
 /* Footer */
 .oracle-footer {
   text-align: center;
