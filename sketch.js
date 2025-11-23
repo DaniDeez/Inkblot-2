@@ -189,31 +189,62 @@ function drawOrganicBlob(segment, side) {
 }
 
 function drawCornerOrbs() {
-  // Gentle pulse using sine wave
+  // Gentle pulse using sine wave for sparkle animation
   orbPulse = sin(frameCount * 0.02) * 0.3 + 1;
 
-  let orbRadius = 15 * orbPulse;
-  let orbColors = [
-    color(255, 248, 240, 150), // Moon-pale white
-    color(248, 241, 255, 150), // Lavender
-    color(255, 245, 250, 150), // Blush pink
-    color(255, 255, 255, 180)  // Pure white
+  let sparkleSize = 20 * orbPulse;
+  let sparkleColors = [
+    color(255, 255, 255, 200),    // Pure white
+    color(0, 217, 192, 180),      // Turquoise
+    color(255, 255, 255, 200),    // Pure white
+    color(0, 217, 192, 180)       // Turquoise
   ];
 
   let positions = [
-    [30, 30],           // Top-left
-    [width - 30, 30],   // Top-right
-    [30, height - 30],  // Bottom-left
-    [width - 30, height - 30] // Bottom-right
+    [30, 30],                      // Top-left
+    [width - 30, 30],              // Top-right
+    [30, height - 30],             // Bottom-left
+    [width - 30, height - 30]      // Bottom-right
   ];
 
-  drawingContext.shadowBlur = 15;
+  drawingContext.shadowBlur = 20;
 
   for (let i = 0; i < 4; i++) {
-    drawingContext.shadowColor = 'rgba(255, 255, 255, 0.6)';
-    fill(orbColors[i]);
+    push();
+    translate(positions[i][0], positions[i][1]);
+
+    // Draw sparkle shape (4-pointed star with extra center glow)
+    drawingContext.shadowColor = 'rgba(0, 217, 192, 0.8)';
+    fill(sparkleColors[i]);
     noStroke();
-    ellipse(positions[i][0], positions[i][1], orbRadius, orbRadius);
+
+    // Main 4-pointed star
+    beginShape();
+    for (let j = 0; j < 8; j++) {
+      let angle = (TWO_PI / 8) * j;
+      let r = (j % 2 === 0) ? sparkleSize : sparkleSize * 0.3;
+      let x = cos(angle) * r;
+      let y = sin(angle) * r;
+      vertex(x, y);
+    }
+    endShape(CLOSE);
+
+    // Add diagonal cross for 8-pointed sparkle effect
+    rotate(PI / 8);
+    beginShape();
+    for (let j = 0; j < 8; j++) {
+      let angle = (TWO_PI / 8) * j;
+      let r = (j % 2 === 0) ? sparkleSize * 0.7 : sparkleSize * 0.2;
+      let x = cos(angle) * r;
+      let y = sin(angle) * r;
+      vertex(x, y);
+    }
+    endShape(CLOSE);
+
+    // Center bright point
+    ellipse(0, 0, sparkleSize * 0.4);
+
+    pop();
   }
 
   drawingContext.shadowBlur = 0;

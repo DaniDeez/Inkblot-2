@@ -75,4 +75,4 @@ Developed with intention, mystery, and reverence for the symbols that choose to 
 
 ---
 
-*Every ripple is a memory—what reflection has chosen to return?*
+*Every symbol is a memory—what reflection has chosen to return?*
